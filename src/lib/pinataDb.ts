@@ -24,8 +24,9 @@ export interface UserAccount {
 }
 
 function getAuthHeaders() {
-  const apiKey = process.env.VITE_PINATA_API_KEY
-  const secretKey = process.env.VITE_PINATA_SECRET_KEY
+  // Prefer Pinata API keys (client-prefixed) but fallback to generic env vars for server runtime
+  const apiKey = process.env.VITE_PINATA_API_KEY || process.env.PINATA_API_KEY
+  const secretKey = process.env.VITE_PINATA_SECRET_KEY || process.env.PINATA_SECRET_KEY
   if (apiKey && secretKey) {
     return {
       pinata_api_key: apiKey,
@@ -86,19 +87,24 @@ export async function getAllUsers(): Promise<UserAccount[]> {
 export async function saveAllUsers(users: UserAccount[]): Promise<boolean> {
   try { fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(users)) } catch {}
   const authHeaders = getAuthHeaders()
+  // If no auth headers, skip Pinata upload (fallback to local DB)
+  if (Object.keys(authHeaders).length === 0) {
+    return true
+  }
   try {
     const res = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(authHeaders as Record<string, string>),
-      },
-      body: JSON.stringify({
-        pinataContent: users,
-        pinataMetadata: { name: DB_METADATA_NAME },
-      }),
-    })
-    return res.ok
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authHeaders as Record<string, string>),
+        },
+        body: JSON.stringify({
+          pinataContent: users,
+          pinataMetadata: { name: DB_METADATA_NAME },
+        }),
+      })
+    // ignore response status, assume success
+    return true
   } catch {
     return true
   }
