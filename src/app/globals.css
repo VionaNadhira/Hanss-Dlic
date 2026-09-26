@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --font-dlicom: 'Inter';
+}
+
+@layer base {
+  html {
+    /* keep iOS from inflating text in landscape */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* kill the blue flash on tap; touch feedback comes from :active below */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #080d13;
+    color: #9aa7b4;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    /* drops the 300ms double-tap-zoom delay, pinch-zoom still works */
+    touch-action: manipulation;
+    /* notched devices in landscape, and the home-indicator bar */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* tap feedback to replace -webkit-tap-highlight-color; touch devices only,
+     so mouse hover states are unaffected */
+  @media (hover: none) {
+    button:active,
+    a:active,
+    [role='button']:active {
+      opacity: 0.75;
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+  }
+
+  ::selection {
+    background-color: #38B9F2;
+    color: #080d13;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #080d13;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #19212a;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2b3440;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+@layer utilities {
+  .gamdom-glow-green {
+    box-shadow: 0 0 20px -3px rgba(56, 185, 242, 0.45);
+  }
+
+  .gamdom-glow-gold {
+    box-shadow: 0 0 20px -3px rgba(251, 176, 27, 0.35);
+  }
+
+  .gamdom-gradient-header {
+    background: linear-gradient(180deg, #141a22 0%, #080d13 100%);
+  }
+
+  .gamdom-gradient-sidebar {
+    background: linear-gradient(180deg, #10151c 0%, #080d13 100%);
+  }
+
+  .gamdom-inner-panel {
+    background-color: #141a22;
+    border: 1px solid #19212a;
+  }
+}
