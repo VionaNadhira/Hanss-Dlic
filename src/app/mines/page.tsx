@@ -71,7 +71,7 @@ function calcMultiplier(mines: number, revealed: number): number {
 
 export default function MinesPage() {
   const { balance, deductBalance, addBalance } = useBalance()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   const [bet, setBet] = useState(5.00)
   const [minesCount, setMinesCount] = useState(3)
@@ -182,7 +182,7 @@ export default function MinesPage() {
         {/* Theater Layout — controls left, grid right */}
         <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}>
           {/* Controls Panel — left */}
-          <div className="w-full lg:w-80 p-6 flex flex-col justify-between shrink-0" style={{ backgroundColor: '#10151c' }}>
+          <div className="w-full lg:w-80 p-4 sm:p-6 flex flex-col justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
             <div className="space-y-4">
               {/* Bet Amount */}
               <div>
@@ -311,7 +311,7 @@ export default function MinesPage() {
           </div>
 
           {/* 5x5 Grid Area — right stage */}
-          <div className="flex-1 p-6 flex flex-col items-center justify-center min-h-[520px]" style={{ backgroundColor: '#080d13' }}>
+          <div className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center min-h-[360px] sm:min-h-[520px] order-1 lg:order-2" style={{ backgroundColor: '#080d13' }}>
             <div className="h-10 mb-4 flex items-center justify-center">
               {gameState === 'busted' && (
                 <div className="px-5 py-2 font-bold text-xs uppercase flex items-center gap-1.5" style={{ backgroundColor: 'rgba(255,77,79,0.15)', border: '1px solid #ff4d4f', borderRadius: '4px', color: '#ff4d4f', fontFamily: "'Gamdom', sans-serif" }}>
@@ -380,7 +380,7 @@ export default function MinesPage() {
             </div>
           </div>
         </div>
-        <AuthGuardModal isOpen={!user} />
+        <AuthGuardModal isOpen={!loading && !user} />
       </div>
       </>
   )

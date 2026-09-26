@@ -49,7 +49,7 @@ function playDiceSound(type: 'roll' | 'win' | 'lose') {
 
 export default function DicePage() {
   const { balance, deductBalance, addBalance } = useBalance()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const [bet, setBet] = useState(5.00)
   const [target, setTarget] = useState(50)
   const [roll, setRoll] = useState<number | null>(null)
@@ -122,7 +122,7 @@ export default function DicePage() {
         {/* Theater Layout — controls left, stage right */}
         <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}>
           {/* Controls Column — left */}
-          <div className="w-full lg:w-80 p-6 flex flex-col justify-between shrink-0" style={{ backgroundColor: '#10151c' }}>
+          <div className="w-full lg:w-80 p-4 sm:p-6 flex flex-col justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
             <div className="space-y-4">
               {/* Bet Amount */}
               <div>
@@ -215,7 +215,7 @@ export default function DicePage() {
           </div>
 
           {/* Game Stage Area — base surface compact */}
-          <div className="flex-1 p-8 flex flex-col items-center justify-center min-h-[520px]" style={{ backgroundColor: '#080d13' }}>
+          <div className="flex-1 p-4 sm:p-8 flex flex-col items-center justify-center min-h-[320px] sm:min-h-[520px] order-1 lg:order-2" style={{ backgroundColor: '#080d13' }}>
             {/* Slider visualization — Dlicom art with probability overlay */}
             <div className="w-full max-w-lg mb-10">
               <div className="relative w-full">
@@ -285,7 +285,7 @@ export default function DicePage() {
             </div>
           </div>
         </div>
-        <AuthGuardModal isOpen={!user} />
+        <AuthGuardModal isOpen={!loading && !user} />
       </div>
     </>
   )

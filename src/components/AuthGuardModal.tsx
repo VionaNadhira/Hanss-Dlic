@@ -4,8 +4,8 @@ import React from 'react'
 import Link from 'next/link'
 import { Lock, LogIn, UserPlus } from 'lucide-react'
 
-export default function AuthGuardModal({ isOpen }: { isOpen: boolean }) {
-  if (!isOpen) return null
+export default function AuthGuardModal({ isOpen, loading = false }: { isOpen: boolean; loading?: boolean }) {
+  if (!isOpen || loading) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">

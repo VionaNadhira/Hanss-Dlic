@@ -135,7 +135,7 @@ function playBlackjackSound(type: 'card' | 'chip' | 'win' | 'lose' | 'hit' | 'st
 
 export default function BlackjackPage() {
   const { balance, deductBalance, addBalance } = useBalance()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   const bgmRef = React.useRef<HTMLAudioElement | null>(null)
   React.useEffect(() => {
@@ -358,7 +358,7 @@ export default function BlackjackPage() {
       {/* Gamdom Theater Container — Gamdom Design System v:alpha #080D13 / #0F151B / #38B9F2 */}
       <div className="bg-[#0F151B] rounded-[10px] overflow-hidden border border-[#19212A] flex flex-col lg:flex-row" style={{ boxShadow: 'none' }}>
         {/* Controls Column */}
-        <div className="w-full lg:w-80 p-6 bg-[#080D13] border-b lg:border-b-0 lg:border-r border-[#19212A] flex flex-col justify-between shrink-0">
+        <div className="w-full lg:w-80 p-4 sm:p-6 bg-[#080D13] border-b lg:border-b-0 lg:border-r border-[#19212A] flex flex-col justify-between shrink-0 order-2 lg:order-1">
           <div className="space-y-5">
             {/* Bet Amount */}
             <div>
@@ -508,12 +508,12 @@ export default function BlackjackPage() {
         </div>
 
         {/* Felt Table Area */}
-        <div className="flex-1 p-6 md:p-10 flex flex-col justify-between items-center min-h-[520px] relative border-t lg:border-t-0" style={{ backgroundColor: '#080D13', borderColor: '#19212A' }}>
+        <div className="flex-1 p-4 sm:p-6 md:p-10 flex flex-col justify-between items-center min-h-[360px] sm:min-h-[520px] relative border-t lg:border-t-0 order-1 lg:order-2" style={{ backgroundColor: '#080D13', borderColor: '#19212A' }}>
           <div className="text-center select-none opacity-15 pointer-events-none mt-2">
-            <div className="text-2xl font-bold tracking-widest uppercase" style={{ color: '#FFFFFF', fontFamily: "'Luckiest Guy', serif" }}>
+            <div className="text-xl sm:text-2xl font-bold tracking-widest uppercase" style={{ color: '#FFFFFF', fontFamily: "'Luckiest Guy', serif" }}>
               BLACKJACK PAYS 3 TO 2
             </div>
-            <div className="text-xs uppercase font-semibold" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif" }}>
+            <div className="text-[10px] sm:text-xs uppercase font-semibold" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif" }}>
               Dealer Must Draw to 16 and Stand on all 17s
             </div>
           </div>
@@ -595,7 +595,7 @@ export default function BlackjackPage() {
           </div>
         </div>
       </div>
-      <AuthGuardModal isOpen={!user} />
+      <AuthGuardModal isOpen={!loading && !user} />
     </div>
   )
 }

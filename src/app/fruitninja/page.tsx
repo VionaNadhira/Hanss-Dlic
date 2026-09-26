@@ -28,7 +28,7 @@ interface SlashPoint {
 
 export default function FruitNinjaRealPage() {
   const { balance, deductBalance, addBalance } = useBalance()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const [bet, setBet] = useState(10.00)
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover'>('idle')
   const [score, setScore] = useState(0)
@@ -250,8 +250,11 @@ export default function FruitNinjaRealPage() {
     const canvas = canvasRef.current
     if (!canvas) return
     const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    if (rect.width === 0 || rect.height === 0) return
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+    const x = (e.clientX - rect.left) * scaleX
+    const y = (e.clientY - rect.top) * scaleY
 
     slashesRef.current.push({ x, y, time: Date.now() })
 
@@ -298,7 +301,7 @@ export default function FruitNinjaRealPage() {
       </div>
 
       <div className="bg-gamdom-card rounded-3xl overflow-hidden border border-gamdom-border flex flex-col lg:flex-row shadow-gamdom-card">
-        <div className="w-full lg:w-80 p-6 bg-gamdom-dark border-b lg:border-b-0 lg:border-r border-gamdom-border flex flex-col justify-between shrink-0">
+        <div className="w-full lg:w-80 p-4 sm:p-6 bg-gamdom-dark border-b lg:border-b-0 lg:border-r border-gamdom-border flex flex-col justify-between shrink-0 order-2 lg:order-1">
           <div className="space-y-5">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -370,7 +373,7 @@ export default function FruitNinjaRealPage() {
           </div>
         </div>
 
-        <div className="flex-1 p-4 md:p-6 flex flex-col items-center justify-center bg-gradient-to-b from-[#162232] via-[#0f1622] to-[#0a0e16] min-h-[520px] relative">
+        <div className="flex-1 p-3 sm:p-6 flex flex-col items-center justify-center bg-gradient-to-b from-[#162232] via-[#0f1622] to-[#0a0e16] min-h-[340px] sm:min-h-[520px] relative order-1 lg:order-2">
           {gameState === 'gameover' && (
             <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-4">
               <h2 className="text-3xl font-black text-white uppercase tracking-wider">GAME OVER</h2>
@@ -397,12 +400,13 @@ export default function FruitNinjaRealPage() {
             ref={canvasRef}
             width={700}
             height={480}
+            onPointerDown={handlePointerMove}
             onPointerMove={handlePointerMove}
             className="w-full h-full max-w-[700px] max-h-[480px] rounded-2xl bg-gamdom-dark border border-gamdom-border shadow-inner cursor-crosshair touch-none"
           />
         </div>
       </div>
-      <AuthGuardModal isOpen={!user} />
+      <AuthGuardModal isOpen={!loading && !user} />
     </div>
   )
 }

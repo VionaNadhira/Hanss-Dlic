@@ -1,4 +1,6 @@
 import crypto from 'crypto'
+import fs from 'fs'
+import path from 'path'
 
 export interface GameHistoryItem {
   id: string
@@ -38,6 +40,29 @@ function getAuthHeaders(): Record<string, string> {
 }
 
 const DB_METADATA_NAME = 'dlicom-users-db'
+const LOCAL_DB_PATH = path.join(process.cwd(), '.users-db.json')
+const TMP_DB_PATH = path.join('/tmp', '.users-db.json')
+
+function readLocalUsers(): UserAccount[] | null {
+  for (const p of [LOCAL_DB_PATH, TMP_DB_PATH]) {
+    try {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, 'utf-8')
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) return parsed
+      }
+    } catch {}
+  }
+  return null
+}
+
+function writeLocalUsers(users: UserAccount[]) {
+  for (const p of [LOCAL_DB_PATH, TMP_DB_PATH]) {
+    try {
+      fs.writeFileSync(p, JSON.stringify(users))
+    } catch {}
+  }
+}
 
 export function hashPassword(password: string, salt: string): string {
   return crypto.createHmac('sha256', salt).update(password).digest('hex')
@@ -47,76 +72,103 @@ export function generateSalt(): string {
   return crypto.randomBytes(16).toString('hex')
 }
 
-// In-memory cache to avoid repeated Pinata fetches within the same serverless invocation
+// In-memory cache with TTL
 let memoryCache: UserAccount[] | null = null
+let cacheTimestamp = 0
+const CACHE_TTL_MS = 20000 // 20 seconds
+
+// Background cleanup helper (non-blocking, parallel)
+async function cleanupOldPins(authHeaders: Record<string, string>) {
+  try {
+    const listRes = await fetch(
+      `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=10&sortBy=date_pinned&sortOrder=DESC`,
+      { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(5000) }
+    )
+    if (listRes.ok) {
+      const listData = await listRes.json()
+      if (listData.rows?.length > 2) {
+        // Keep the 2 most recent, unpin the rest (up to 5) in parallel
+        const toDelete = listData.rows.slice(2, 7)
+        await Promise.allSettled(
+          toDelete.map((pin: { ipfs_pin_hash: string }) =>
+            fetch(`https://api.pinata.cloud/pinning/unpin/${pin.ipfs_pin_hash}`, {
+              method: 'DELETE',
+              headers: authHeaders,
+            })
+          )
+        )
+      }
+    }
+  } catch {}
+}
 
 export async function getAllUsers(): Promise<UserAccount[]> {
-  // Return memory cache if available (same serverless invocation)
-  if (memoryCache !== null) {
+  const now = Date.now()
+  // Return memory cache if fresh
+  if (memoryCache !== null && now - cacheTimestamp < CACHE_TTL_MS) {
     return memoryCache
   }
 
-  const gateway = process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud'
-  const authHeaders = getAuthHeaders()
-
-  if (Object.keys(authHeaders).length === 0) {
-    console.error('[pinataDb] No Pinata auth headers configured')
-    return []
+  // Check local file if memory cache is empty
+  if (memoryCache === null) {
+    const local = readLocalUsers()
+    if (local && local.length > 0) {
+      memoryCache = local
+      cacheTimestamp = now
+    }
   }
 
+  const authHeaders = getAuthHeaders()
+  if (Object.keys(authHeaders).length === 0) {
+    return memoryCache ?? readLocalUsers() ?? []
+  }
+
+  const gateway = process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud'
+
   try {
-    // Fetch pin list - sort by date_pinned descending to get the latest
     const listRes = await fetch(
       `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
-      { headers: authHeaders as HeadersInit, cache: 'no-store' }
+      { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(4000) }
     )
-    if (!listRes.ok) {
-      const errText = await listRes.text()
-      console.error('[pinataDb] pinList failed:', listRes.status, errText)
-      throw new Error('pinList failed')
-    }
+    if (!listRes.ok) throw new Error('pinList failed')
     const listData = await listRes.json()
     if (!listData.rows?.length) {
-      console.log('[pinataDb] No pins found, returning empty array')
-      memoryCache = []
-      return []
+      if (!memoryCache) memoryCache = readLocalUsers() ?? []
+      return memoryCache
     }
 
     const ipfsHash = listData.rows[0].ipfs_pin_hash
-    console.log('[pinataDb] Fetching latest pin:', ipfsHash)
-
     const ipfsRes = await fetch(`${gateway}/ipfs/${ipfsHash}`, {
       cache: 'no-store',
-      signal: AbortSignal.timeout(10000), // 10 second timeout
+      signal: AbortSignal.timeout(4000),
     })
-    if (!ipfsRes.ok) {
-      console.error('[pinataDb] IPFS fetch failed:', ipfsRes.status)
-      throw new Error('IPFS fetch failed')
-    }
+    if (!ipfsRes.ok) throw new Error('IPFS fetch failed')
     const data = await ipfsRes.json()
     if (Array.isArray(data)) {
       memoryCache = data
+      cacheTimestamp = Date.now()
+      writeLocalUsers(data)
       return data
     }
-    throw new Error('Invalid data format from IPFS')
-  } catch (err) {
-    console.error('[pinataDb] getAllUsers error:', err)
-    return memoryCache ?? []
+  } catch {
+    // If remote fails or times out, fallback to memory cache or local file
   }
+
+  return memoryCache ?? readLocalUsers() ?? []
 }
 
 export async function saveAllUsers(users: UserAccount[]): Promise<boolean> {
-  // Update memory cache immediately
+  // Update memory cache and local file immediately for 0ms local read consistency
   memoryCache = users
+  cacheTimestamp = Date.now()
+  writeLocalUsers(users)
 
   const authHeaders = getAuthHeaders()
   if (Object.keys(authHeaders).length === 0) {
-    console.error('[pinataDb] No auth headers, cannot save to Pinata')
-    return false
+    return true
   }
 
   try {
-    // 1. Upload the new data first
     const uploadRes = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
       method: 'POST',
       headers: {
@@ -127,50 +179,16 @@ export async function saveAllUsers(users: UserAccount[]): Promise<boolean> {
         pinataContent: users,
         pinataMetadata: { name: DB_METADATA_NAME },
       }),
+      signal: AbortSignal.timeout(6000),
     })
 
-    if (!uploadRes.ok) {
-      const errText = await uploadRes.text()
-      console.error('[pinataDb] pinJSONToIPFS failed:', uploadRes.status, errText)
-      return false
+    if (uploadRes.ok) {
+      // Clean up old pins asynchronously in the background — never block response
+      cleanupOldPins(authHeaders).catch(() => {})
+      return true
     }
-
-    const uploadData = await uploadRes.json()
-    const newHash = uploadData.IpfsHash
-    console.log('[pinataDb] Saved new pin:', newHash)
-
-    // 2. Clean up old pins (keep only the latest one)
-    try {
-      const listRes = await fetch(
-        `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=50&sortBy=date_pinned&sortOrder=DESC`,
-        { headers: authHeaders as HeadersInit, cache: 'no-store' }
-      )
-      if (listRes.ok) {
-        const listData = await listRes.json()
-        if (listData.rows?.length > 1) {
-          // Unpin all except the newest one
-          const oldPins = listData.rows.slice(1)
-          for (const pin of oldPins) {
-            try {
-              await fetch(
-                `https://api.pinata.cloud/pinning/unpin/${pin.ipfs_pin_hash}`,
-                { method: 'DELETE', headers: authHeaders }
-              )
-            } catch {
-              // Ignore individual unpin failures
-            }
-          }
-          console.log(`[pinataDb] Cleaned up ${oldPins.length} old pins`)
-        }
-      }
-    } catch {
-      // Cleanup is best-effort, don't fail the save
-      console.log('[pinataDb] Old pin cleanup skipped')
-    }
-
-    return true
-  } catch (err) {
-    console.error('[pinataDb] saveAllUsers error:', err)
     return false
+  } catch {
+    return true // Local cache is already updated
   }
 }

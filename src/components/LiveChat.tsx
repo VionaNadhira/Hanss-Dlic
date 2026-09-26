@@ -266,7 +266,13 @@ export default function LiveChat({
   const showMentionMenu = mentionOpen && mentionMatches.length > 0
 
   return (
-    <aside className="w-80 h-[calc(100vh-64px)] bg-gamdom-sidebar border-l border-gamdom-border flex flex-col justify-between shrink-0 select-none z-30 transition-all duration-300">
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
+        onClick={onClose}
+      />
+      <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-80 lg:static lg:h-[calc(100vh-64px)] bg-gamdom-sidebar border-l border-gamdom-border flex flex-col justify-between shrink-0 select-none transition-all duration-300 shadow-2xl lg:shadow-none">
       {/* Chat Header */}
       <div className="p-3.5 border-b border-gamdom-border bg-gamdom-header flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -479,5 +485,6 @@ export default function LiveChat({
         )}
       </div>
     </aside>
+    </>
   )
 }

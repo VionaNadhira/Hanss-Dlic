@@ -129,7 +129,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     setNotifications([])
   }, [])
 
+  const isFetchingRef = useRef(false)
+
   const refreshMessages = useCallback(async () => {
+    if (isFetchingRef.current) return
+    isFetchingRef.current = true
     try {
       const res = await fetch('/api/chat', { cache: 'no-store' })
       if (!res.ok) return
@@ -168,7 +172,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
           fromUser: m.user,
         })
       }
-    } catch {}
+    } catch {} finally {
+      isFetchingRef.current = false
+    }
   }, [user, addNotification])
 
   const appendMessage = useCallback((m: ChatMessage) => {

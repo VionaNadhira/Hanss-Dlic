@@ -86,7 +86,7 @@ type RoundStatus = 'COUNTDOWN' | 'FLYING' | 'CRASHED'
 
 export default function CrashPage() {
   const { balance, deductBalance, addBalance } = useBalance()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   const [bet, setBet] = useState(5.00)
   const [autoCashout, setAutoCashout] = useState<string>('2.00')
@@ -318,7 +318,7 @@ export default function CrashPage() {
         {/* Theater Layout — controls left, chart right */}
         <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}>
           {/* Controls Panel — left */}
-          <div className="w-full lg:w-80 p-6 flex flex-col justify-between shrink-0" style={{ backgroundColor: '#10151c' }}>
+          <div className="w-full lg:w-80 p-4 sm:p-6 flex flex-col justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
             <div className="space-y-4">
               {/* Bet Amount */}
               <div>
@@ -377,7 +377,7 @@ export default function CrashPage() {
           </div>
 
           {/* Canvas Display — right stage */}
-          <div className="flex-1 p-6 flex flex-col items-center justify-center relative min-h-[520px] bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/crash/bg.png')", backgroundColor: '#080d13' }}>
+          <div className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center relative min-h-[300px] sm:min-h-[520px] bg-cover bg-center bg-no-repeat order-1 lg:order-2" style={{ backgroundImage: "url('/crash/bg.png')", backgroundColor: '#080d13' }}>
             <div className="absolute z-10 flex flex-col items-center pointer-events-none select-none">
               {status === 'COUNTDOWN' ? (
                 <div className="flex flex-col items-center">
@@ -399,7 +399,7 @@ export default function CrashPage() {
             <canvas ref={canvasRef} width={650} height={380} className="w-full h-full max-h-[380px]" />
           </div>
         </div>
-        <AuthGuardModal isOpen={!user} />
+        <AuthGuardModal isOpen={!loading && !user} />
       </div>
     </>
   )

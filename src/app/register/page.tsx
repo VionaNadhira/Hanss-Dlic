@@ -41,7 +41,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-sm mx-auto w-full flex flex-col items-center">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-sm mx-auto w-full flex flex-col items-center justify-center my-auto min-h-[calc(100vh-140px)]">
       <div className="w-full bg-gamdom-card border border-gamdom-border rounded-2xl p-6 shadow-gamdom-card space-y-5">
         <div className="text-center">
           <div className="w-12 h-12 rounded-xl bg-gamdom-green/15 border border-gamdom-green/30 flex items-center justify-center mx-auto mb-3">

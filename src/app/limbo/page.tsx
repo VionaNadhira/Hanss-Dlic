@@ -151,7 +151,7 @@ function playLimboSound(type: 'spin' | 'tick' | 'win' | 'lose') {
 
 export default function LimboPage() {
   const { balance, deductBalance, addBalance } = useBalance()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   const [betInput, setBetInput] = useState('5.00')
   const [targetInput, setTargetInput] = useState('2.00')
@@ -791,7 +791,7 @@ export default function LimboPage() {
           )}
         </div>
 
-        <AuthGuardModal isOpen={!user} />
+        <AuthGuardModal isOpen={!loading && !user} />
       </div>
     </>
   )

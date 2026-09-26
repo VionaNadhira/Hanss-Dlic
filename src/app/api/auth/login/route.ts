@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     user.lastLogin = Date.now()
-    await saveAllUsers(users)
+    void saveAllUsers(users).catch((err) => console.error('[login] saveAllUsers background error:', err))
 
     const res = NextResponse.json({
       success: true,
