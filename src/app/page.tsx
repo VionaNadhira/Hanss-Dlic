@@ -67,7 +67,6 @@ export default function Home() {
       image: '/games/fruitninja.jpeg',
       borderColor: 'group-hover:border-gamdom-green/50',
     },
-    {
   ].sort((a, b) => a.title.localeCompare(b.title))
 
   return (

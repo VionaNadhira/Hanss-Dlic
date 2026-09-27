@@ -67,7 +67,6 @@ export default function GamesPage() {
       image: '/games/fruitninja.jpeg',
       borderColor: 'group-hover:border-gamdom-green/50',
     },
-    {
   ]
 
   return (
