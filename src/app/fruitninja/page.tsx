@@ -5,7 +5,7 @@ import Button from '@/components/ui/button'
 import AuthGuardModal from '@/components/AuthGuardModal'
 import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
-import { ShieldCheck, Play, RotateCcw } from 'lucide-react'
+import { Play, RotateCcw } from 'lucide-react'
 
 interface FlyingFruit {
   id: number
@@ -294,15 +294,11 @@ export default function FruitNinjaRealPage() {
             <p className="text-xs text-gamdom-text">Swipe across flying fruits with your mouse/touch to slice them!</p>
           </div>
         </div>
-        <div className="hidden sm:flex items-center gap-1.5 text-xs text-gamdom-green bg-gamdom-green/10 border border-gamdom-green/20 px-3 py-1.5 rounded-xl font-bold">
-          <ShieldCheck size={14} />
-          <span>Provably Fair RNG</span>
-        </div>
       </div>
 
       <div className="bg-gamdom-card rounded-3xl overflow-hidden border border-gamdom-border flex flex-col lg:flex-row shadow-gamdom-card">
-        <div className="w-full lg:w-80 p-4 sm:p-6 bg-gamdom-dark border-b lg:border-b-0 lg:border-r border-gamdom-border flex flex-col justify-between shrink-0 order-2 lg:order-1">
-          <div className="space-y-5">
+        <div className="w-full lg:w-80 p-4 sm:p-6 bg-gamdom-dark border-b lg:border-b-0 lg:border-r border-gamdom-border grid grid-cols-[minmax(0,1fr)_140px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1">
+            <div className="space-y-5">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[11px] font-black text-gamdom-text uppercase tracking-wider">
@@ -357,13 +353,19 @@ export default function FruitNinjaRealPage() {
             )}
           </div>
 
-          <div className="pt-6">
+          <div
+            className={
+              gameState === 'playing'
+                ? 'col-span-2 pt-0 lg:pt-6'
+                : 'w-full col-start-2 row-start-1 self-stretch flex items-center lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6'
+            }
+          >
             {gameState !== 'playing' ? (
               <Button
                 onClick={startGame}
-                className="w-full h-14 rounded-2xl font-black text-sm tracking-wider uppercase bg-gamdom-green hover:bg-gamdom-greenHover text-gamdom-dark shadow-gamdom-green hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full h-full lg:h-14 rounded-2xl font-black text-xs sm:text-sm tracking-wider uppercase bg-gamdom-green hover:bg-gamdom-greenHover text-gamdom-dark shadow-gamdom-green hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-center px-2"
               >
-                <Play size={18} /> START GAME (${bet.toFixed(2)})
+                <Play size={18} className="shrink-0" /> START GAME (${bet.toFixed(2)})
               </Button>
             ) : (
               <div className="text-center text-xs text-gamdom-green font-bold animate-pulse">

@@ -5,7 +5,7 @@ import Button from '@/components/ui/button'
 import AuthGuardModal from '@/components/AuthGuardModal'
 import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
-import { ShieldCheck, TrendingUp, AlertTriangle } from 'lucide-react'
+import { TrendingUp, AlertTriangle } from 'lucide-react'
 
 function playCrashSound(type: 'beep' | 'cashout' | 'boom' | 'countdown' | 'liftoff') {
   if (typeof window === 'undefined') return
@@ -287,10 +287,6 @@ export default function CrashPage() {
               <p className="text-sm" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400, color: '#9aa7b4' }}>Watch multiplier rocket climb and cash out before detonation.</p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-[8px]" style={{ color: '#38B9F2', backgroundColor: 'rgba(56, 185, 242,0.08)', border: '1px solid #19212a', fontFamily: "'Gamdom', sans-serif" }}>
-            <ShieldCheck size={14} />
-            <span>Provably Fair RNG</span>
-          </div>
         </div>
 
         {/* History */}
@@ -318,7 +314,7 @@ export default function CrashPage() {
         {/* Theater Layout — controls left, chart right */}
         <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}>
           {/* Controls Panel — left */}
-          <div className="w-full lg:w-80 p-4 sm:p-6 flex flex-col justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
+          <div className="w-full lg:w-80 p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_132px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
             <div className="space-y-4">
               {/* Bet Amount */}
               <div>
@@ -361,15 +357,15 @@ export default function CrashPage() {
             </div>
 
             {/* Action Button */}
-            <div>
+            <div className="w-full col-start-2 row-start-1 self-stretch flex flex-col justify-center lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
               {status === 'FLYING' && hasBet && !hasCashedOut ? (
-                <button onClick={handleManualCashout} className="w-full h-10 font-bold text-sm uppercase flex flex-col items-center justify-center" style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', border: '1px solid transparent', fontFamily: "'Gamdom', sans-serif", fontWeight: 400 }}>
+                <button onClick={handleManualCashout} className="w-full h-full lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center" style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', border: '1px solid transparent', fontFamily: "'Gamdom', sans-serif", fontWeight: 400 }}>
                   <span>CASH OUT</span><span className="text-[11px] font-bold" style={{ opacity: 0.7 }}>+${liveWinProfit.toFixed(2)} ({(bet * currentMultiplier).toFixed(2)})</span>
                 </button>
               ) : hasBet ? (
-                <div className="w-full h-10 font-bold text-xs uppercase flex items-center justify-center" style={{ borderRadius: '4px', backgroundColor: 'transparent', color: '#ffffff', border: '1px solid #ffffff', fontFamily: "'Gamdom', sans-serif" }}>{hasCashedOut ? 'CASHED OUT SUCCESS' : 'BET PLACED - IN FLIGHT'}</div>
+                <div className="w-full h-full lg:h-10 font-bold text-xs uppercase flex items-center justify-center" style={{ borderRadius: '4px', backgroundColor: 'transparent', color: '#ffffff', border: '1px solid #ffffff', fontFamily: "'Gamdom', sans-serif" }}>{hasCashedOut ? 'CASHED OUT SUCCESS' : 'BET PLACED - IN FLIGHT'}</div>
               ) : (
-                <Button onClick={handlePlaceBet} disabled={status === 'FLYING'} className="w-full h-10 font-bold text-sm uppercase border-0" style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 400, boxShadow: 'none', border: '1px solid transparent' }}>
+                <Button onClick={handlePlaceBet} disabled={status === 'FLYING'} className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0" style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 400, boxShadow: 'none', border: '1px solid transparent' }}>
                   {status === 'FLYING' ? 'WAIT FOR NEXT ROUND' : 'PLACE BET'}
                 </Button>
               )}

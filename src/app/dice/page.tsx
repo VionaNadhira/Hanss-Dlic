@@ -5,7 +5,7 @@ import Button from '@/components/ui/button'
 import AuthGuardModal from '@/components/AuthGuardModal'
 import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
-import { ShieldCheck, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 
 function playDiceSound(type: 'roll' | 'win' | 'lose') {
   if (typeof window === 'undefined') return
@@ -113,16 +113,12 @@ export default function DicePage() {
               <p className="text-sm" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400, color: '#9aa7b4' }}>Set your roll over target, test probability, and win instantly.</p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-[8px]" style={{ color: '#38B9F2', backgroundColor: 'rgba(56, 185, 242,0.08)', border: '1px solid #19212a', fontFamily: "'Gamdom', sans-serif" }}>
-            <ShieldCheck size={14} />
-            <span>Provably Fair RNG</span>
-          </div>
         </div>
 
         {/* Theater Layout — controls left, stage right */}
         <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}>
           {/* Controls Column — left */}
-          <div className="w-full lg:w-80 p-4 sm:p-6 flex flex-col justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
+          <div className="w-full lg:w-80 p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_132px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
             <div className="space-y-4">
               {/* Bet Amount */}
               <div>
@@ -202,11 +198,11 @@ export default function DicePage() {
             </div>
 
             {/* Action Button — primary #ffffff / inverse #080d13 */}
-            <div>
+            <div className="w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
               <Button
                 onClick={handleRoll}
                 disabled={isRolling}
-                className="w-full h-10 font-bold text-sm uppercase border-0"
+                className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0"
                 style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 400, boxShadow: 'none', border: '1px solid transparent' }}
               >
                 {isRolling ? 'ROLLING...' : 'ROLL DICE'}

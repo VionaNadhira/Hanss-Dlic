@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import AuthGuardModal from '@/components/AuthGuardModal'
 import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
-import { Gem, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react'
+import { Gem, Sparkles, TrendingUp } from 'lucide-react'
 
 const CHIP_WIDTH = 104
 const CHIP_GAP = 16
@@ -408,18 +408,6 @@ export default function LimboPage() {
                 Pick a Pengali, spin the reel, and win when it clears your target.
               </p>
             </div>
-          </div>
-          <div
-            className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-[8px] shrink-0"
-            style={{
-              color: '#38B9F2',
-              backgroundColor: 'rgba(56, 185, 242,0.08)',
-              border: '1px solid #19212a',
-              fontFamily: FONT,
-            }}
-          >
-            <ShieldCheck size={14} />
-            <span>Provably Fair RNG</span>
           </div>
         </div>
 

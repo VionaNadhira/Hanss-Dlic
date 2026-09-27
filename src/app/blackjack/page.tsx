@@ -358,7 +358,7 @@ export default function BlackjackPage() {
       {/* Gamdom Theater Container — Gamdom Design System v:alpha #080D13 / #0F151B / #38B9F2 */}
       <div className="bg-[#0F151B] rounded-[10px] overflow-hidden border border-[#19212A] flex flex-col lg:flex-row" style={{ boxShadow: 'none' }}>
         {/* Controls Column */}
-        <div className="w-full lg:w-80 p-4 sm:p-6 bg-[#080D13] border-b lg:border-b-0 lg:border-r border-[#19212A] flex flex-col justify-between shrink-0 order-2 lg:order-1">
+        <div className="w-full lg:w-80 p-4 sm:p-6 bg-[#080D13] border-b lg:border-b-0 lg:border-r border-[#19212A] grid grid-cols-[minmax(0,1fr)_140px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1">
           <div className="space-y-5">
             {/* Bet Amount */}
             <div>
@@ -454,11 +454,17 @@ export default function BlackjackPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-6 space-y-2">
+          <div
+            className={
+              gameState === 'playing'
+                ? 'col-span-2 space-y-0 pt-0 lg:space-y-2 lg:pt-6'
+                : 'w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6 lg:space-y-2'
+            }
+          >
             {gameState === 'betting' && (
               <Button
                 onClick={handleDeal}
-                className="w-full h-11 rounded-[10px] font-bold text-sm uppercase transition-all active:scale-[0.96]"
+                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all active:scale-[0.96]"
                 style={{ backgroundColor: '#38B9F2', color: '#000000', boxShadow: 'rgba(56, 185, 242, 0.28) 0px 0px 6.2px 0px', fontFamily: "'Luckiest Guy', serif" }}
               >
                 DEAL HAND
@@ -498,7 +504,7 @@ export default function BlackjackPage() {
             {gameState === 'resolved' && (
               <Button
                 onClick={handleNewRound}
-                className="w-full h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all active:scale-[0.96]"
+                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all active:scale-[0.96]"
                 style={{ backgroundColor: '#38B9F2', color: '#000000', boxShadow: 'rgba(56, 185, 242, 0.28) 0px 0px 6.2px 0px', fontFamily: "'Luckiest Guy', serif" }}
               >
                 <RefreshCw size={17} /> PLAY AGAIN

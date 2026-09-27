@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
-import { LucideDices, Bomb, Rocket, Spade, Gem } from 'lucide-react'
+import { LucideDices, Bomb, Rocket, Spade, Gem, Grid3x3 } from 'lucide-react'
 
 export default function GamesPage() {
   const games = [
@@ -67,22 +67,32 @@ export default function GamesPage() {
       image: '/games/fruitninja.jpeg',
       borderColor: 'group-hover:border-gamdom-green/50',
     },
+    {
+      title: 'Keno',
+      description: 'Pick up to 10 numbers and match 8 drawn balls to hit the prize table',
+      href: '/keno',
+      icon: Grid3x3,
+      badge: 'New',
+      badgeColor: 'bg-gamdom-green/20 text-gamdom-green border-gamdom-green/40',
+      image: '/games/keno.png',
+      borderColor: 'group-hover:border-gamdom-green/50',
+    },
   ]
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 w-full">
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+      <div className="grid grid-cols-2 min-[480px]:grid-cols-3 md:grid-cols-5 gap-6 justify-items-center">
         {games.map((game) => (
           <Link
             key={game.title}
             href={game.href}
-            className="group relative rounded-2xl overflow-hidden border border-gamdom-border hover:border-gamdom-green/50 transition-all duration-300 shadow-gamdom-card hover:-translate-y-1.5 block aspect-[3/4]"
+            className="group relative block w-full max-w-[220px] aspect-[0.78] rounded-[12px] overflow-hidden border border-gamdom-border hover:border-gamdom-green/50 transition-all duration-300 shadow-gamdom-card hover:-translate-y-1.5"
           >
             <img
               src={game.image}
               alt={game.title}
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 select-none"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
             />
           </Link>
         ))}
