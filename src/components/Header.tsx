@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { ChevronDown, LogIn, UserPlus, LogOut, MessageSquare } from 'lucide-react'
+import { ChevronDown, LogIn, UserPlus, LogOut, MessageSquare, Menu } from 'lucide-react'
 import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
 import NotificationBell from '@/components/NotificationBell'
@@ -12,9 +12,18 @@ interface HeaderProps {
   isChatOpen?: boolean
   onJumpToMessage?: (messageId: string) => void
   onOpenDeposit: () => void
+  onToggleNav?: () => void
+  isNavOpen?: boolean
 }
 
-export default function Header({ onToggleChat, isChatOpen, onJumpToMessage, onOpenDeposit }: HeaderProps) {
+export default function Header({
+  onToggleChat,
+  isChatOpen,
+  onJumpToMessage,
+  onOpenDeposit,
+  onToggleNav,
+  isNavOpen,
+}: HeaderProps) {
   const { balance } = useBalance()
   const { user, logout } = useAuth()
   const [profileOpen, setProfileOpen] = useState(false)
@@ -24,6 +33,14 @@ export default function Header({ onToggleChat, isChatOpen, onJumpToMessage, onOp
       <header className="min-h-16 bg-gamdom-header border-b border-gamdom-border px-3 sm:px-4 lg:px-6 pt-[env(safe-area-inset-top)] flex items-center justify-between sticky top-0 z-40 select-none shadow-md">
         {/* Left Section: Mobile Menu Button & Logo */}
         <div className="flex items-center gap-2 sm:gap-4">
+          <button
+            onClick={() => onToggleNav?.()}
+            aria-label={isNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={!!isNavOpen}
+            className="md:hidden w-9 h-9 -ml-1 rounded-lg text-gamdom-text hover:text-white hover:bg-gamdom-card flex items-center justify-center transition shrink-0"
+          >
+            <Menu size={20} />
+          </button>
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-10 h-8 sm:w-12 sm:h-9 rounded-lg overflow-hidden flex items-center justify-center bg-transparent p-0.5">
               <img

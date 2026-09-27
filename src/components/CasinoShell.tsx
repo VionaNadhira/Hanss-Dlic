@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 import Header from './Header'
-import MobileRail from './MobileRail'
+import MobileDrawer from './MobileDrawer'
 import LiveChat from './LiveChat'
 import DepositModal from './DepositModal'
 
@@ -10,6 +10,7 @@ export default function CasinoShell({ children }: { children: React.ReactNode })
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [highlightId, setHighlightId] = useState<string | null>(null)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
+  const [isNavOpen, setIsNavOpen] = useState(false)
 
   // A notification click opens the chat and points it at the target message.
   const jumpToMessage = useCallback((messageId: string) => {
@@ -20,9 +21,11 @@ export default function CasinoShell({ children }: { children: React.ReactNode })
   const openDeposit = useCallback(() => setIsDepositOpen(true), [])
 
   return (
-    <div className="min-h-screen bg-gamdom-bg flex flex-col text-gamdom-text pl-16 md:pl-0">
-      {/* Mobile quick-action rail — left side, below the md breakpoint */}
-      <MobileRail
+    <div className="min-h-screen bg-gamdom-bg flex flex-col text-gamdom-text">
+      {/* Mobile slide-over menu — opened from the header hamburger */}
+      <MobileDrawer
+        open={isNavOpen}
+        onClose={() => setIsNavOpen(false)}
         onToggleChat={() => setIsChatOpen((prev) => !prev)}
         isChatOpen={isChatOpen}
         onJumpToMessage={jumpToMessage}
@@ -35,6 +38,8 @@ export default function CasinoShell({ children }: { children: React.ReactNode })
         isChatOpen={isChatOpen}
         onJumpToMessage={jumpToMessage}
         onOpenDeposit={openDeposit}
+        onToggleNav={() => setIsNavOpen((prev) => !prev)}
+        isNavOpen={isNavOpen}
       />
 
       {/* Main Body with Center Content and Collapsible Chat */}
