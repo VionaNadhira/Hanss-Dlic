@@ -102,6 +102,7 @@ export default function CrashPage() {
   const [history, setHistory] = useState<number[]>([1.42, 2.15, 1.10, 8.45, 1.88, 3.20])
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const stageRef = useRef<HTMLDivElement | null>(null)
   const animationRef = useRef<number | null>(null)
   const startTimeRef = useRef<number>(0)
   const crashPointRef = useRef<number>(2.00)
@@ -192,18 +193,36 @@ export default function CrashPage() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const stage = stageRef.current
+    if (!canvas || !stage) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    const width = canvas.width
-    const height = canvas.height
-    ctx.clearRect(0, 0, width, height)
-    if (status === 'FLYING' || status === 'CRASHED') {
+
+    const draw = () => {
+      const rect = stage.getBoundingClientRect()
+      const W = Math.max(1, Math.round(rect.width))
+      const H = Math.max(1, Math.round(rect.height))
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const targetW = Math.round(W * dpr)
+      const targetH = Math.round(H * dpr)
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW
+        canvas.height = targetH
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, W, H)
+      if (status !== 'FLYING' && status !== 'CRASHED') return
+
+      const size = Math.max(64, Math.min(W * 0.18, H * 0.3, 130))
+      const startX = size / 2
+      const startY = H - size / 2
       const progress = Math.min(1, (currentMultiplier - 1) / 10)
-      const endX = 40 + (width - 60) * Math.min(1, (currentMultiplier - 1) / 6)
-      const endY = height - 25 - (height - 60) * Math.min(1, progress)
-      const gradient = ctx.createLinearGradient(0, endY, 0, height - 25)
-      if (status === 'CRASHED') {
+      const endX = startX + (W - size - 20) * Math.min(1, (currentMultiplier - 1) / 6)
+      const endY = Math.max(size / 2, startY - (H - size - 24) * progress)
+      const crashed = status === 'CRASHED'
+
+      const gradient = ctx.createLinearGradient(0, endY, 0, H)
+      if (crashed) {
         gradient.addColorStop(0, 'rgba(255, 68, 68, 0.35)')
         gradient.addColorStop(1, 'rgba(255, 68, 68, 0.0)')
         ctx.strokeStyle = '#ff4444'
@@ -213,31 +232,37 @@ export default function CrashPage() {
         ctx.strokeStyle = '#38B9F2'
       }
       ctx.beginPath()
-      ctx.moveTo(40, height - 25)
-      ctx.quadraticCurveTo(40 + (endX - 40) * 0.4, height - 25, endX, endY)
+      ctx.moveTo(0, H)
+      ctx.quadraticCurveTo(startX + (endX - startX) * 0.4, H, endX, endY)
       ctx.lineWidth = 4
       ctx.stroke()
-      ctx.lineTo(endX, height - 25)
+      ctx.lineTo(endX, H)
       ctx.closePath()
       ctx.fillStyle = gradient
       ctx.fill()
+
       const rocket = rocketRef.current
       if (rocket && rocket.complete && rocket.naturalWidth > 0) {
-        const size = 120
-        ctx.shadowColor = status === 'CRASHED' ? '#ff4444' : '#38B9F2'
+        ctx.shadowColor = crashed ? '#ff4444' : '#38B9F2'
         ctx.shadowBlur = 14
         ctx.drawImage(rocket, endX - size / 2, endY - size / 2, size, size)
         ctx.shadowBlur = 0
       } else {
         ctx.beginPath()
         ctx.arc(endX, endY, 8, 0, Math.PI * 2)
-        ctx.fillStyle = status === 'CRASHED' ? '#ff4444' : '#f5a623'
-        ctx.shadowColor = status === 'CRASHED' ? '#ff4444' : '#38B9F2'
+        ctx.fillStyle = crashed ? '#ff4444' : '#f5a623'
+        ctx.shadowColor = crashed ? '#ff4444' : '#38B9F2'
         ctx.shadowBlur = 14
         ctx.fill()
         ctx.shadowBlur = 0
       }
     }
+
+    draw()
+
+    const observer = new ResizeObserver(() => draw())
+    observer.observe(stage)
+    return () => observer.disconnect()
   }, [currentMultiplier, status])
 
   useEffect(() => {
@@ -373,7 +398,7 @@ export default function CrashPage() {
           </div>
 
           {/* Canvas Display — right stage */}
-          <div className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center relative min-h-[300px] sm:min-h-[520px] bg-cover bg-center bg-no-repeat order-1 lg:order-2" style={{ backgroundImage: "url('/crash/bg.png')", backgroundColor: '#080d13' }}>
+          <div ref={stageRef} className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center relative min-h-[300px] sm:min-h-[520px] bg-cover bg-center bg-no-repeat order-1 lg:order-2" style={{ backgroundImage: "url('/crash/bg.png')", backgroundColor: '#080d13' }}>
             <div className="absolute z-10 flex flex-col items-center pointer-events-none select-none">
               {status === 'COUNTDOWN' ? (
                 <div className="flex flex-col items-center">
@@ -392,7 +417,7 @@ export default function CrashPage() {
                 </div>
               )}
             </div>
-            <canvas ref={canvasRef} width={650} height={380} className="w-full h-full max-h-[380px]" />
+            <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[5] pointer-events-none" />
           </div>
         </div>
         <AuthGuardModal isOpen={!loading && !user} />
