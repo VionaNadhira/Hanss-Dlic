@@ -68,15 +68,6 @@ export default function Home() {
       borderColor: 'group-hover:border-gamdom-green/50',
     },
     {
-      title: 'Keno',
-      description: 'Pick up to 10 numbers and match 8 drawn balls to hit the prize table',
-      href: '/keno',
-      icon: Grid3x3,
-      badge: 'New',
-      badgeColor: 'bg-gamdom-green/20 text-gamdom-green border-gamdom-green/40',
-      image: '/games/keno.png',
-      borderColor: 'group-hover:border-gamdom-green/50',
-    },
   ].sort((a, b) => a.title.localeCompare(b.title))
 
   return (

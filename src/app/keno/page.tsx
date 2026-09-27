@@ -338,15 +338,15 @@ export default function KenoPage() {
 
   const tileBase: React.CSSProperties = {
     fontFamily: FONT,
-    fontSize: '20px',
+    fontSize: '15px',
     fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    width: '76px',
-    height: '114px',
-    backgroundColor: 'transparent',
+    width: '100%',
+    aspectRatio: '1 / 1',
+    borderRadius: '8px',
     border: 'none',
     padding: 0,
     transition: 'all 180ms ease',
@@ -395,6 +395,157 @@ export default function KenoPage() {
           className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row"
           style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}
         >
+          {/* Board */}
+          <div
+            ref={boardRef}
+            onClick={() => {
+              if (winPopup) setWinPopup(null)
+            }}
+            className="relative flex-1 p-3 sm:p-6 flex flex-col items-center justify-start gap-4 min-h-[380px] order-1 lg:order-2"
+            style={{ backgroundColor: '#080d13' }}
+          >
+            {winPopup && winPopupPos && (
+              <div
+                className="absolute z-20 animate-in zoom-in duration-200 pointer-events-none"
+                style={{ left: winPopupPos.x, top: winPopupPos.y, width: 0, height: 0 }}
+              >
+                <div
+                  className="absolute"
+                  style={{
+                    left: 0,
+                    top: 0,
+                    transform: 'translate(-50%, -50%)',
+                    width: 'min(76vw, 330px)',
+                    aspectRatio: `${WIN_POPUP_IMAGE_W} / ${WIN_POPUP_IMAGE_H}`,
+                    backgroundImage: 'url(/keno/winvalue1.png)',
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                  }}
+                >
+                  <div
+                    className="absolute flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap"
+                    style={{
+                      left: `${(WIN_VALUE_CENTER_X / WIN_POPUP_IMAGE_W) * 100}%`,
+                      top: `${(WIN_VALUE_CENTER_Y / WIN_POPUP_IMAGE_H) * 100}%`,
+                      transform: 'translate(-50%, -50%)',
+                      fontFamily: FONT,
+                      color: '#ffffff',
+                      textShadow: '0 2px 6px rgba(0,0,0,0.45)',
+                    }}
+                  >
+                    <span className="text-[20px] sm:text-[24px] font-black leading-none">
+                      +${winPopup.profit.toFixed(2)}
+                    </span>
+                    <span className="text-[13px] sm:text-[15px] font-bold leading-none opacity-90">
+                      {winPopup.multiplier.toFixed(2)}x
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="w-full px-2 sm:px-4">
+              <div
+                ref={gridRef}
+                className="grid p-3 sm:p-4 rounded-[12px] w-full max-w-[480px] mx-auto"
+                style={{
+                  gridTemplateColumns: 'repeat(8, minmax(0, 1fr))',
+                  gap: '4px',
+                  backgroundColor: '#10151c',
+                  border: '1px solid #19212a',
+                }}
+              >
+                {pool.map((value) => {
+                  const isSelected = selectedSet.has(value)
+                  const isDrawn = drawnSet.has(value)
+                  const isHit = isSelected && isDrawn
+
+                  const fill = isHit
+                    ? '#38B9F2'
+                    : isSelected
+                      ? '#ffffff'
+                      : isDrawn
+                        ? '#141a22'
+                        : '#080d13'
+                  const text = isHit || isSelected ? '#080d13' : isDrawn ? '#6f7d8a' : '#9aa7b4'
+
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      data-value={value}
+                      disabled={isDrawing}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        toggleNumber(value)
+                      }}
+                      className="select-none disabled:cursor-not-allowed hover:opacity-90 active:scale-95 transition-transform"
+                      style={{
+                        ...tileBase,
+                        backgroundColor: fill,
+                        color: text,
+                        opacity: isDrawing && !isDrawn ? 0.6 : 1,
+                      }}
+                    >
+                      <span className="relative">{value}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="h-8 flex items-center justify-center">
+              {isDrawing && (
+                <div
+                  className="text-xs font-bold flex items-center gap-1.5"
+                  style={{ fontFamily: FONT, color: '#fbb01b' }}
+                >
+                  <Grid3x3 size={14} /> Drawing {drawn.length} / {DRAW_SIZE} balls
+                </div>
+              )}
+            </div>
+
+            <div className="w-full max-w-[880px]">
+              <div className="flex items-center justify-between mb-2">
+                <span style={labelStyle}>Payouts</span>
+                <span style={{ fontFamily: FONT, fontSize: '12px', color: '#6f7d8a' }}>
+                  {DRAW_SIZE} of {POOL_SIZE} drawn
+                </span>
+              </div>
+              {spots > 0 ? (
+                <div className="flex flex-nowrap overflow-x-auto pb-1" style={{ gap: '8px' }}>
+                  {table.map((multiplier, index) => (
+                    <span
+                      key={index}
+                      className="font-bold shrink-0 whitespace-nowrap"
+                      style={{
+                        fontFamily: FONT,
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        padding: '8px 10px',
+                        borderRadius: '4px',
+                        border: `1px solid ${multiplier > 0 ? '#38B9F2' : '#19212a'}`,
+                        backgroundColor: multiplier > 0 ? 'rgba(56, 185, 242,0.12)' : 'transparent',
+                        color: multiplier > 0 ? '#38B9F2' : '#6f7d8a',
+                      }}
+                    >
+                      {index} hit{index === 1 ? '' : 's'} ·{' '}
+                      {multiplier > 0 ? `${multiplier.toFixed(2)}x` : '—'}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p
+                  className="text-center"
+                  style={{ fontFamily: FONT, fontSize: '12px', color: '#6f7d8a' }}
+                >
+                  Pick numbers to see the payout table.
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Controls Panel */}
           <div
             className="w-full lg:w-80 p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_132px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 lg:justify-start shrink-0 order-2 lg:order-1"
@@ -550,133 +701,6 @@ export default function KenoPage() {
               </button>
             </div>
           </div>
-
-          {/* Board */}
-          <div
-            ref={boardRef}
-            onClick={() => {
-              if (winPopup) setWinPopup(null)
-            }}
-            className="relative flex-1 p-4 sm:p-6 flex flex-col items-center justify-start gap-4 min-h-[380px] order-1 lg:order-2"
-            style={{ backgroundColor: '#080d13' }}
-          >
-            {winPopup && winPopupPos && (
-              <div
-                className="absolute z-20 animate-in zoom-in duration-200 pointer-events-none"
-                style={{ left: winPopupPos.x, top: winPopupPos.y, width: 0, height: 0 }}
-              >
-                <div
-                  className="absolute"
-                  style={{
-                    left: 0,
-                    top: 0,
-                    transform: 'translate(-50%, -50%)',
-                    width: 'min(76vw, 330px)',
-                    aspectRatio: `${WIN_POPUP_IMAGE_W} / ${WIN_POPUP_IMAGE_H}`,
-                    backgroundImage: 'url(/keno/winvalue1.png)',
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                  }}
-                >
-                  <div
-                    className="absolute flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap"
-                    style={{
-                      left: `${(WIN_VALUE_CENTER_X / WIN_POPUP_IMAGE_W) * 100}%`,
-                      top: `${(WIN_VALUE_CENTER_Y / WIN_POPUP_IMAGE_H) * 100}%`,
-                      transform: 'translate(-50%, -50%)',
-                      fontFamily: FONT,
-                      color: '#ffffff',
-                      textShadow: '0 2px 6px rgba(0,0,0,0.45)',
-                    }}
-                  >
-                    <span className="text-[20px] sm:text-[24px] font-black leading-none">
-                      +${winPopup.profit.toFixed(2)}
-                    </span>
-                    <span className="text-[13px] sm:text-[15px] font-bold leading-none opacity-90">
-                      {winPopup.multiplier.toFixed(2)}x
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="w-full max-w-full overflow-x-auto pb-1">
-              <div
-                ref={gridRef}
-                className="grid p-4 rounded-[20px] w-max"
-                style={{
-                  gridTemplateColumns: 'repeat(8, 76px)',
-                  gap: '16px',
-                  minWidth: '720px',
-                  backgroundColor: '#10151c',
-                  border: '1px solid #19212a',
-                }}
-              >
-                {pool.map((value) => {
-                  const isSelected = selectedSet.has(value)
-                  const isDrawn = drawnSet.has(value)
-                  const isHit = isSelected && isDrawn
-
-                  const fill = isHit
-                    ? '#38B9F2'
-                    : isSelected
-                      ? '#ffffff'
-                      : isDrawn
-                        ? '#141a22'
-                        : '#080d13'
-                  const text = isHit || isSelected ? '#080d13' : isDrawn ? '#6f7d8a' : '#9aa7b4'
-
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      data-value={value}
-                      disabled={isDrawing}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        toggleNumber(value)
-                      }}
-                      className="select-none disabled:cursor-not-allowed"
-                      style={{
-                        ...tileBase,
-                        color: text,
-                        opacity: isDrawing && !isDrawn ? 0.6 : 1,
-                      }}
-                    >
-                      <span
-                        className="absolute inset-0"
-                        style={{
-                          backgroundColor: fill,
-                          clipPath: 'inset(13.22% 16.89% 13.67% 16.7%)',
-                        }}
-                      />
-
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-0"
-                        style={{
-                          backgroundImage: 'url(/keno/border.png)',
-                          backgroundSize: '100% 100%',
-                          backgroundRepeat: 'no-repeat',
-                          backgroundPosition: 'center',
-                        }}
-                      />
-                      <span className="relative">{value}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className="h-8 flex items-center justify-center">
-              {isDrawing && (
-                <div
-                  className="text-xs font-bold flex items-center gap-1.5"
-                  style={{ fontFamily: FONT, color: '#fbb01b' }}
-                >
-                  <Grid3x3 size={14} /> Drawing {drawn.length} / {DRAW_SIZE} balls
-                </div>
-              )}
             </div>
 
             <div className="w-full max-w-[880px]">
