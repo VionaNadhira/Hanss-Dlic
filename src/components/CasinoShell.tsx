@@ -43,8 +43,8 @@ export default function CasinoShell({ children }: { children: React.ReactNode })
       />
 
       {/* Main Body with Center Content and Collapsible Chat */}
-      <div className="flex-1 flex overflow-hidden">
-        <main className="flex-1 overflow-y-auto bg-gamdom-bg flex flex-col">
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        <main className="flex-1 min-w-0 overflow-y-auto bg-gamdom-bg flex flex-col">
           {children}
         </main>
         <LiveChat

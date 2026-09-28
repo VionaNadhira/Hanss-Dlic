@@ -338,15 +338,18 @@ export default function KenoPage() {
 
   const tileBase: React.CSSProperties = {
     fontFamily: FONT,
-    fontSize: '15px',
+    fontSize: 'clamp(11px, 3.3vw, 15px)',
     fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    boxSizing: 'border-box',
     width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
     aspectRatio: '1 / 1',
-    borderRadius: '8px',
+    borderRadius: 'clamp(4px, 1.67vw, 8px)',
     border: 'none',
     padding: 0,
     transition: 'all 180ms ease',
@@ -401,7 +404,7 @@ export default function KenoPage() {
             onClick={() => {
               if (winPopup) setWinPopup(null)
             }}
-            className="relative flex-1 p-3 sm:p-6 flex flex-col items-center justify-start gap-4 min-h-[380px] order-1 lg:order-2"
+            className="relative flex-1 min-w-0 p-3 sm:p-6 flex flex-col items-center justify-start gap-4 min-h-[380px] order-1 lg:order-2"
             style={{ backgroundColor: '#080d13' }}
           >
             {winPopup && winPopupPos && (
@@ -445,13 +448,14 @@ export default function KenoPage() {
               </div>
             )}
 
-            <div className="w-full px-2 sm:px-4">
+            <div className="w-full min-w-0 px-2 sm:px-4">
               <div
                 ref={gridRef}
-                className="grid p-3 sm:p-4 rounded-[12px] w-full max-w-[480px] mx-auto"
+                className="grid w-full min-w-0 max-w-[480px] mx-auto p-2 sm:p-4 rounded-[12px]"
                 style={{
                   gridTemplateColumns: 'repeat(8, minmax(0, 1fr))',
-                  gap: '4px',
+                  gap: 'clamp(3px, 0.84vw, 4px)',
+                  boxSizing: 'border-box',
                   backgroundColor: '#10151c',
                   border: '1px solid #19212a',
                 }}
@@ -699,47 +703,6 @@ export default function KenoPage() {
                   {phase === 'idle' ? 'BET' : 'BETTING'}
                 </span>
               </button>
-            </div>
-          </div>
-            </div>
-
-            <div className="w-full max-w-[880px]">
-              <div className="flex items-center justify-between mb-2">
-                <span style={labelStyle}>Payouts</span>
-                <span style={{ fontFamily: FONT, fontSize: '12px', color: '#6f7d8a' }}>
-                  {DRAW_SIZE} of {POOL_SIZE} drawn
-                </span>
-              </div>
-              {spots > 0 ? (
-                <div className="flex flex-nowrap overflow-x-auto pb-1" style={{ gap: '8px' }}>
-                  {table.map((multiplier, index) => (
-                    <span
-                      key={index}
-                      className="font-bold shrink-0 whitespace-nowrap"
-                      style={{
-                        fontFamily: FONT,
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        padding: '8px 10px',
-                        borderRadius: '4px',
-                        border: `1px solid ${multiplier > 0 ? '#38B9F2' : '#19212a'}`,
-                        backgroundColor: multiplier > 0 ? 'rgba(56, 185, 242,0.12)' : 'transparent',
-                        color: multiplier > 0 ? '#38B9F2' : '#6f7d8a',
-                      }}
-                    >
-                      {index} hit{index === 1 ? '' : 's'} ·{' '}
-                      {multiplier > 0 ? `${multiplier.toFixed(2)}x` : '—'}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p
-                  className="text-center"
-                  style={{ fontFamily: FONT, fontSize: '12px', color: '#6f7d8a' }}
-                >
-                  Pick numbers to see the payout table.
-                </p>
-              )}
             </div>
           </div>
         </div>
