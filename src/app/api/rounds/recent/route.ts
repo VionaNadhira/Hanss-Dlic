@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db/client'
-import { rounds } from '@/lib/db/schema'
-import { and, desc, eq, inArray } from 'drizzle-orm'
+import { getRecentResolvedRounds, getOrUpdateRounds } from '@/lib/game/memoryRounds'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,25 +9,13 @@ export async function GET(req: NextRequest) {
     const asset = (searchParams.get('asset') || 'btc').toLowerCase()
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)))
 
-    const rows = await db
-      .select({
-        id: rounds.id,
-        asset: rounds.asset,
-        startAt: rounds.startAt,
-        endAt: rounds.endAt,
-        targetPrice: rounds.targetPrice,
-        finalPrice: rounds.finalPrice,
-        status: rounds.status,
-        result: rounds.result,
-        poolUp: rounds.poolUp,
-        poolDown: rounds.poolDown,
-      })
-      .from(rounds)
-      .where(and(eq(rounds.asset, asset), inArray(rounds.status, ['resolved', 'void'])))
-      .orderBy(desc(rounds.endAt))
-      .limit(limit)
+    // Trigger update/check first so resolved rounds are populated
+    const nowSec = Math.floor(Date.now() / 1000)
+    await getOrUpdateRounds(asset, nowSec)
 
-    const mapped = rows.map((r) => ({
+    const resolved = getRecentResolvedRounds(asset, limit)
+
+    const mapped = resolved.map((r) => ({
       id: r.id,
       asset: r.asset,
       startAt: r.startAt,

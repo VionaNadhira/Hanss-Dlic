@@ -23,7 +23,8 @@ export default function RoundStats({
   useEffect(() => {
     const updateCountdown = () => {
       const nowServerSec = Math.floor((Date.now() + serverTimeOffset) / 1000)
-      const diff = Math.max(0, endAt - nowServerSec)
+      const targetEnd = endAt > 0 ? endAt : Math.floor(nowServerSec / 300) * 300 + 300
+      const diff = Math.max(0, targetEnd - nowServerSec)
       setSecondsLeft(diff)
     }
 

@@ -118,7 +118,7 @@ export default function PriceChart({
 
     const ticks = ticksRef.current
     const curPrice = currentPriceRef.current
-    const tgtPrice = targetPriceRef.current
+    const tgtPrice = targetPriceRef.current ?? (ticks.length > 0 ? ticks[0].price : curPrice)
     const zoom = zoomRef.current
     const { w, h } = size
 
@@ -173,7 +173,7 @@ export default function PriceChart({
     ctx.fillStyle = '#090c10'
     ctx.fillRect(0, 0, w, h)
 
-    // --- Right Margin Price Labels (Without diagram grid lines) ---
+    // --- Right Margin Price Labels ---
     ctx.save()
     ctx.fillStyle = '#525d6b'
     ctx.font = '9px monospace'
@@ -184,6 +184,19 @@ export default function PriceChart({
       const label = price > 1000 ? `$${price.toFixed(1)}` : `$${price.toFixed(2)}`
       ctx.fillText(label, PAD.left + plotW + 6, y + 3)
     }
+
+    // Highlighted badge on right axis for target price
+    if (tgtPrice !== null) {
+      const ty = getY(tgtPrice)
+      ctx.fillStyle = '#f59e0b'
+      ctx.beginPath()
+      ctx.roundRect(PAD.left + plotW + 2, ty - 8, PAD.right - 4, 16, 3)
+      ctx.fill()
+      ctx.fillStyle = '#080d13'
+      ctx.font = 'bold 9px monospace'
+      ctx.textAlign = 'left'
+      ctx.fillText(`$${tgtPrice.toFixed(1)}`, PAD.left + plotW + 5, ty + 3)
+    }
     ctx.restore()
 
     // Clip to plot area
@@ -192,32 +205,39 @@ export default function PriceChart({
     ctx.rect(PAD.left, PAD.top, plotW, plotH)
     ctx.clip()
 
-    // --- Target price line ---
+    // --- Target price line (Price to Beat) ---
     if (tgtPrice !== null) {
       const ty = getY(tgtPrice)
       ctx.save()
-      ctx.setLineDash([4, 4])
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'
-      ctx.lineWidth = 1.5
+      ctx.setLineDash([6, 4])
+      ctx.strokeStyle = '#f59e0b'
+      ctx.lineWidth = 1.75
+      ctx.shadowColor = 'rgba(245, 158, 11, 0.45)'
+      ctx.shadowBlur = 6
       ctx.beginPath()
       ctx.moveTo(PAD.left, ty)
       ctx.lineTo(PAD.left + plotW, ty)
       ctx.stroke()
       ctx.setLineDash([])
-      // Target label badge
-      ctx.fillStyle = 'rgba(13, 17, 23, 0.85)'
+      ctx.shadowBlur = 0
+
+      // Target label badge inside plot
+      ctx.fillStyle = '#111827'
       ctx.beginPath()
-      ctx.roundRect(PAD.left + plotW - 114, ty - 14, 110, 20, 4)
+      ctx.roundRect(PAD.left + plotW - 150, ty - 12, 146, 24, 6)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
-      ctx.lineWidth = 1
+      ctx.strokeStyle = '#f59e0b'
+      ctx.lineWidth = 1.2
       ctx.stroke()
+
       ctx.fillStyle = '#f59e0b'
       ctx.font = 'bold 9px Inter, sans-serif'
       ctx.textAlign = 'left'
-      ctx.fillText('TARGET ', PAD.left + plotW - 106, ty + 1)
+      ctx.fillText('PRICE TO BEAT', PAD.left + plotW - 143, ty + 3)
+
       ctx.fillStyle = '#ffffff'
-      ctx.fillText(`$${tgtPrice.toFixed(2)}`, PAD.left + plotW - 63, ty + 1)
+      ctx.font = 'bold 10px monospace'
+      ctx.fillText(`$${tgtPrice.toFixed(2)}`, PAD.left + plotW - 73, ty + 3)
       ctx.restore()
     }
 

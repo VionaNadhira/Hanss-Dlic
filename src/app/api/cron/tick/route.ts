@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { runLazySync } from '@/lib/game/rounds'
-import { MARKETS } from '@/lib/game/markets'
+import { getOrUpdateRounds } from '@/lib/game/memoryRounds'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,13 +13,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized cron tick' }, { status: 401 })
     }
 
-    // Run sync for all supported markets
-    const assets = Object.keys(MARKETS)
-    await Promise.all(assets.map((asset) => runLazySync(asset)))
+    const nowSec = Math.floor(Date.now() / 1000)
+    await getOrUpdateRounds('btc', nowSec)
 
     return NextResponse.json({
       success: true,
-      syncedAssets: assets,
+      syncedAssets: ['btc'],
       serverTime: Date.now(),
     })
   } catch (err: unknown) {

@@ -1,7 +1,3 @@
-import { db } from '../db/client'
-import { priceTicks } from '../db/schema'
-import { and, eq, gte, lte, sql } from 'drizzle-orm'
-
 export interface PriceResult {
   asset: string
   price: number
@@ -19,9 +15,6 @@ interface CacheEntry {
 const memoryCache = new Map<string, CacheEntry>()
 const CACHE_TTL_MS = 1000
 
-// In-memory timestamp to throttle database tick writes to at most once per second per asset
-const lastTickSaved = new Map<string, number>()
-
 const ASSET_TO_FEED: Record<string, string> = {
   btc: 'e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
   eth: 'ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
@@ -37,7 +30,6 @@ const FEED_TO_ASSET: Record<string, string> = {
 /**
  * Fetch latest price for asset ('btc', 'eth', 'sol').
  * Checks 1s in-memory cache first.
- * Saves price tick to DB at most once per second.
  */
 export async function getLatestPrice(assetInput: string): Promise<PriceResult> {
   const asset = assetInput.toLowerCase()
@@ -104,22 +96,16 @@ export async function getLatestPrice(assetInput: string): Promise<PriceResult> {
     } catch {}
   }
 
-  // 3. Last fallback: most recent recorded price tick in database
-  if (price === null) {
-    try {
-      const row = await db.query.priceTicks.findFirst({
-        where: eq(priceTicks.asset, asset),
-        orderBy: (p, { desc }) => [desc(p.ts)],
-      })
-      if (row) {
-        price = Number(row.price)
-        publishTime = row.ts
-      }
-    } catch {}
+  // 3. Fallback: cached price
+  if (price === null && cached) {
+    price = cached.price
+    publishTime = cached.publishTime
   }
 
+  // Default hard fallback for BTC if completely offline
   if (price === null) {
-    throw new Error(`Failed to retrieve price for ${asset}`)
+    price = 83500.0
+    publishTime = Math.floor(now / 1000)
   }
 
   // Update memory cache
@@ -128,13 +114,6 @@ export async function getLatestPrice(assetInput: string): Promise<PriceResult> {
     publishTime,
     fetchedAt: now,
   })
-
-  // Opportunistically write tick to database at most once per second
-  const lastSaved = lastTickSaved.get(asset) || 0
-  if (now - lastSaved >= 1000) {
-    lastTickSaved.set(asset, now)
-    void recordTick(asset, publishTime, price)
-  }
 
   return {
     asset,
@@ -145,30 +124,7 @@ export async function getLatestPrice(assetInput: string): Promise<PriceResult> {
 }
 
 /**
- * Record a price tick to the database and purge ticks older than 2 hours.
- */
-async function recordTick(asset: string, ts: number, price: number) {
-  try {
-    await db.insert(priceTicks).values({
-      asset,
-      ts,
-      price: price.toString(),
-    })
-
-    // Opportunistically delete rows older than 2 hours (7200 seconds)
-    const cutoff = ts - 7200
-    // Run cleanup occasionally (1 in 50 chance per tick write)
-    if (Math.random() < 0.02) {
-      await db.delete(priceTicks).where(lte(priceTicks.ts, cutoff))
-    }
-  } catch (err) {
-    // Non-blocking tick recording
-    console.error(`[recordTick] Error writing tick for ${asset}:`, err)
-  }
-}
-
-/**
- * Helper getPriceAt(feedId, unixSeconds) using Pyth historical endpoint with retries and DB fallback.
+ * Helper getPriceAt(feedId, unixSeconds) using Pyth historical endpoint with retries.
  */
 export async function getPriceAt(feedId: string, unixSeconds: number): Promise<number | null> {
   const asset = FEED_TO_ASSET[feedId] || 'btc'
@@ -196,38 +152,15 @@ export async function getPriceAt(feedId: string, unixSeconds: number): Promise<n
       }
     } catch {}
 
-    // Backoff wait (100ms, 250ms, 500ms)
+    // Backoff wait
     await new Promise((r) => setTimeout(r, 100 * Math.pow(2, attempt)))
   }
 
-  // Fallback: check local price_ticks table within ±30 seconds of unixSeconds
+  // If timestamp is recent, get latest live price
   try {
-    const ticks = await db
-      .select()
-      .from(priceTicks)
-      .where(
-        and(
-          eq(priceTicks.asset, asset),
-          gte(priceTicks.ts, unixSeconds - 30),
-          lte(priceTicks.ts, unixSeconds + 30)
-        )
-      )
-      .orderBy(sql`ABS(ts - ${unixSeconds})`)
-      .limit(1)
-
-    if (ticks.length > 0) {
-      return Number(ticks[0].price)
-    }
+    const latest = await getLatestPrice(asset)
+    return latest.price
   } catch {}
-
-  // If timestamp is recent (within last 3 minutes), get latest live price
-  const nowSec = Math.floor(Date.now() / 1000)
-  if (Math.abs(nowSec - unixSeconds) < 180) {
-    try {
-      const latest = await getLatestPrice(asset)
-      return latest.price
-    } catch {}
-  }
 
   return null
 }

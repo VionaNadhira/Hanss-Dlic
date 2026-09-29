@@ -50,8 +50,9 @@ export default function PlayPage() {
     userPayout: number | null
   } | null>(null)
 
-  // Ref tracking previous live round ID to detect round resolution
+  // Ref tracking previous live round ID and finished round ID to detect round resolution
   const prevLiveRoundIdRef = useRef<string | null>(null)
+  const lastFinishedRoundIdRef = useRef<string | null>(null)
 
   // 1. Fetch Price
   const fetchPrice = useCallback(async () => {
@@ -114,11 +115,19 @@ export default function PlayPage() {
         if (Array.isArray(data.rounds)) {
           setRecentRounds(data.rounds)
 
-          if (prevLiveRoundIdRef.current) {
-            const resolved = data.rounds.find((r: RecentRound) => r.id === prevLiveRoundIdRef.current)
+          const targetRoundId = lastFinishedRoundIdRef.current
+          if (targetRoundId) {
+            const resolved = data.rounds.find((r: RecentRound) => r.id === targetRoundId)
             if (resolved && resolved.result) {
+              lastFinishedRoundIdRef.current = null
               const myBet = userBets.find((b) => b.roundId === resolved.id)
               const userWon = myBet ? myBet.side === resolved.result : null
+              if (userWon) {
+                playGameSound('win')
+                void refreshBalance()
+              } else if (userWon === false) {
+                playGameSound('settle')
+              }
               setResultBanner({
                 roundId: resolved.id,
                 result: resolved.result,
@@ -131,7 +140,7 @@ export default function PlayPage() {
         }
       }
     } catch {}
-  }, [asset, userBets])
+  }, [asset, userBets, refreshBalance])
 
   // 4. Fetch Current Rounds (live + presales + user bets)
   const fetchRounds = useCallback(async () => {
@@ -143,7 +152,6 @@ export default function PlayPage() {
       if (data.liveRound) {
         setLiveRound(data.liveRound)
         setSelectedRoundId((prev) => {
-          // If no round selected, or previously selected round was the previous live round that has now completed
           if (!prev || (prevLiveRoundIdRef.current && prev === prevLiveRoundIdRef.current && prev !== data.liveRound.id)) {
             return data.liveRound.id
           }
@@ -171,6 +179,7 @@ export default function PlayPage() {
         data.liveRound?.id &&
         prevLiveRoundIdRef.current !== data.liveRound.id
       ) {
+        lastFinishedRoundIdRef.current = prevLiveRoundIdRef.current
         void fetchRecentRounds()
       }
       prevLiveRoundIdRef.current = data.liveRound?.id || null
@@ -234,11 +243,45 @@ export default function PlayPage() {
     void refreshBalance()
   }
 
-  // Active round computation
+  // Active round computation with robust fallback
+  const nowServerSec = Math.floor((Date.now() + serverTimeOffset) / 1000)
+  const defaultStartAt = Math.floor(nowServerSec / 300) * 300
+  const defaultEndAt = defaultStartAt + 300
+
   const activeRound =
-    selectedRoundId === liveRound?.id
+    (selectedRoundId === liveRound?.id
       ? liveRound
-      : presaleRounds.find((r) => r.id === selectedRoundId) || liveRound
+      : presaleRounds.find((r) => r.id === selectedRoundId) || liveRound) || {
+      id: `${asset}-${defaultStartAt}`,
+      asset,
+      startAt: defaultStartAt,
+      endAt: defaultEndAt,
+      targetPrice: currentPrice,
+      finalPrice: null,
+      status: 'live',
+      result: null,
+      poolUp: '1000',
+      poolDown: '1000',
+      odds: {
+        chanceUp: 0.5,
+        chanceDown: 0.5,
+        multiplierUp: 1.96,
+        multiplierDown: 1.96,
+      },
+    }
+
+  // Fast polling during settling phase so round advances immediately
+  useEffect(() => {
+    if (!activeRound?.endAt) return
+    const remaining = activeRound.endAt - nowServerSec
+    if (remaining <= 0) {
+      const poll = setInterval(() => {
+        void fetchRounds()
+        void fetchRecentRounds()
+      }, 1000)
+      return () => clearInterval(poll)
+    }
+  }, [activeRound?.endAt, nowServerSec, fetchRounds, fetchRecentRounds])
 
   const multiplier =
     selectedSide === 'up'
@@ -246,7 +289,6 @@ export default function PlayPage() {
       : activeRound?.odds?.multiplierDown ?? 1.96
 
   // Betting closed threshold: 10s before endAt (cooldown 10 detik sebelum settle)
-  const nowServerSec = Math.floor((Date.now() + serverTimeOffset) / 1000)
   const isBettingClosed = activeRound?.endAt
     ? nowServerSec >= activeRound.endAt - 10
     : false

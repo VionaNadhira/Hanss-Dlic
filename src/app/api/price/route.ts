@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getLatestPrice } from '@/lib/game/pyth'
-import { runLazySync } from '@/lib/game/rounds'
+import { addPriceTick } from '@/lib/game/memoryRounds'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,10 +9,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const asset = searchParams.get('asset') || 'btc'
 
-    // Run lazy sync in background without blocking
-    void runLazySync(asset)
-
     const result = await getLatestPrice(asset)
+
+    if (result && typeof result.price === 'number') {
+      addPriceTick(asset, result.publishTime, result.price)
+    }
 
     return NextResponse.json(result)
   } catch (err: unknown) {
