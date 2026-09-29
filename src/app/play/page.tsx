@@ -151,8 +151,16 @@ export default function PlayPage() {
 
       if (data.liveRound) {
         setLiveRound(data.liveRound)
+        const presaleIds = new Set((data.presaleRounds || []).map((r: any) => r.id))
         setSelectedRoundId((prev) => {
-          if (!prev || (prevLiveRoundIdRef.current && prev === prevLiveRoundIdRef.current && prev !== data.liveRound.id)) {
+          // Auto-advance if: no selection, or selection was the old live round that changed,
+          // or selection is stale (not in presale and not the current live round)
+          if (
+            !prev ||
+            prev === data.liveRound.id ||
+            (prevLiveRoundIdRef.current && prev === prevLiveRoundIdRef.current && prev !== data.liveRound.id) ||
+            (prev !== data.liveRound.id && !presaleIds.has(prev))
+          ) {
             return data.liveRound.id
           }
           return prev
@@ -275,13 +283,27 @@ export default function PlayPage() {
     if (!activeRound?.endAt) return
     const remaining = activeRound.endAt - nowServerSec
     if (remaining <= 0) {
+      // Immediately force advance selectedRoundId if liveRound has changed
+      if (liveRound && selectedRoundId && selectedRoundId !== liveRound.id) {
+        const isInPresale = presaleRounds.some((r) => r.id === selectedRoundId)
+        if (!isInPresale) {
+          setSelectedRoundId(liveRound.id)
+        }
+      }
       const poll = setInterval(() => {
         void fetchRounds()
         void fetchRecentRounds()
       }, 1000)
       return () => clearInterval(poll)
     }
-  }, [activeRound?.endAt, nowServerSec, fetchRounds, fetchRecentRounds])
+  }, [activeRound?.endAt, nowServerSec, fetchRounds, fetchRecentRounds, liveRound, selectedRoundId, presaleRounds])
+
+  // Auto-dismiss result banner after 8 seconds so it doesn't block UI
+  useEffect(() => {
+    if (!resultBanner) return
+    const timer = setTimeout(() => setResultBanner(null), 8000)
+    return () => clearTimeout(timer)
+  }, [resultBanner])
 
   const multiplier =
     selectedSide === 'up'

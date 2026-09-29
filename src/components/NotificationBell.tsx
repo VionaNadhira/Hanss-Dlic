@@ -80,9 +80,9 @@ export default function NotificationBell({ onJumpToMessage }: NotificationBellPr
         }}
         title="Notifications"
         aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
-        className="relative w-11 h-11 rounded-xl border border-gamdom-border bg-gamdom-card text-gamdom-text hover:text-white hover:border-gamdom-green/40 transition"
+        className="relative w-9 h-9 md:w-11 md:h-11 rounded-lg md:rounded-xl border border-gamdom-border bg-gamdom-card text-gamdom-text hover:text-white hover:border-gamdom-green/40 transition"
       >
-        <Icon size={18} className="absolute inset-0 m-auto" />
+        <Icon size={16} className="absolute inset-0 m-auto md:w-[18px] md:h-[18px]" />
         {unreadCount > 0 && (
           <>
             <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gamdom-red border-2 border-gamdom-header text-white text-[10px] font-black flex items-center justify-center">
@@ -94,7 +94,10 @@ export default function NotificationBell({ onJumpToMessage }: NotificationBellPr
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[340px] max-w-[calc(100vw-2rem)] bg-gamdom-card border border-gamdom-border rounded-2xl shadow-2xl overflow-hidden z-50">
+        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-16 px-4 md:absolute md:inset-auto md:right-0 md:top-full md:mt-2 md:pt-0 md:px-0 md:z-50 md:block">
+          {/* Backdrop overlay for mobile */}
+          <div className="fixed inset-0 bg-black/50 md:hidden" onClick={() => { setOpen(false); setSubmenu(false) }} />
+          <div className="relative w-full max-w-[340px] md:w-[340px] bg-gamdom-card border border-gamdom-border rounded-2xl shadow-2xl overflow-hidden z-[61]">
           <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-gamdom-border bg-gamdom-header">
             <div className="flex items-center gap-2 min-w-0">
               <Bell size={14} className="text-gamdom-green shrink-0" />
@@ -185,6 +188,7 @@ export default function NotificationBell({ onJumpToMessage }: NotificationBellPr
               })}
             </div>
           )}
+        </div>
         </div>
       )}
     </div>

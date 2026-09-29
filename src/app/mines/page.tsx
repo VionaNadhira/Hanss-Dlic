@@ -270,14 +270,14 @@ export default function MinesPage() {
             </div>
 
             {/* Action Button — token button: primary #3bb8f2 */}
-            <div className="w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
+            <div className="w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
               {gameState === 'playing' ? (
                 <button
                   onClick={handleCashOut}
                   disabled={revealedCount === 0}
-                  className={`w-full h-full lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:brightness-110 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
+                  className={`w-full h-12 lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:brightness-110 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
                   style={{
-                    borderRadius: '4px',
+                    borderRadius: '8px',
                     borderWidth: '1px',
                     backgroundColor: revealedCount > 0 ? '#3bb8f2' : 'transparent',
                     color: revealedCount > 0 ? '#080d13' : '#3bb8f2',
@@ -297,8 +297,8 @@ export default function MinesPage() {
               ) : (
                 <Button
                   onClick={handleStartGame}
-                  className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
-                  style={{ borderRadius: '4px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
+                  className="w-full h-12 lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
+                  style={{ borderRadius: '8px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
                 >
                   BET & START
                 </Button>
