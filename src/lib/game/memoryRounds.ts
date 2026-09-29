@@ -3,7 +3,7 @@
  * Does not require PostgreSQL, making it 100% resilient on Vercel serverless deploys.
  */
 
-import { getAllUsers, saveAllUsers } from '@/lib/pinataDb'
+import { creditUserBalanceAtomic, deductUserBalanceAtomic } from '@/lib/db/queries'
 import { getLatestPrice } from './pyth'
 
 export const ROUND_DURATION_SEC = 300 // 5 minutes
@@ -150,7 +150,7 @@ function createRoundObject(asset: string, startAt: number, targetPrice: number |
 }
 
 /**
- * Settle a round with a final price and award payouts to winners via Pinata
+ * Settle a round with a final price and award payouts to winners via PostgreSQL
  */
 async function settleRound(round: MemoryRound, finalPrice: number) {
   if (round.status === 'resolved') return
@@ -173,36 +173,24 @@ async function settleRound(round: MemoryRound, finalPrice: number) {
   const roundBets = betsList.filter((b) => b.roundId === round.id && b.status === 'placed')
   if (roundBets.length > 0) {
     try {
-      const users = await getAllUsers()
-      let userUpdated = false
-
       for (const bet of roundBets) {
-        const u = users.find((usr) => usr.username.toLowerCase() === bet.username.toLowerCase())
-        if (!u) continue
-
         if (round.result === 'void') {
           bet.status = 'refunded'
           bet.payout = bet.amount
-          u.balance = +(u.balance + bet.amount).toFixed(2)
-          userUpdated = true
+          await creditUserBalanceAtomic(bet.username, bet.amount)
         } else if (bet.side === round.result) {
           const mult = bet.side === 'up' ? round.odds.multiplierUp : round.odds.multiplierDown
           const payout = +(bet.amount * mult).toFixed(2)
           bet.status = 'won'
           bet.payout = payout
-          u.balance = +(u.balance + payout).toFixed(2)
-          userUpdated = true
+          await creditUserBalanceAtomic(bet.username, payout)
         } else {
           bet.status = 'lost'
           bet.payout = 0
         }
       }
-
-      if (userUpdated) {
-        await saveAllUsers(users)
-      }
     } catch (err) {
-      console.error('[settleRound] Error updating Pinata users on round settle:', err)
+      console.error('[settleRound] Error updating user balance on round settle:', err)
     }
   }
 
@@ -312,7 +300,7 @@ export async function getOrUpdateRounds(assetInput: string, nowSec: number) {
 }
 
 /**
- * Place a bet in memory and deduct balance from Pinata
+ * Place a bet in memory and deduct balance from PostgreSQL
  */
 export async function placeMemoryBet(username: string, roundId: string, side: 'up' | 'down', amount: number) {
   const nowSec = Math.floor(Date.now() / 1000)
@@ -328,24 +316,11 @@ export async function placeMemoryBet(username: string, roundId: string, side: 'u
     throw new Error('Betting is closed for this round')
   }
 
-  const users = await getAllUsers()
   const cleanUsername = decodeURIComponent(username).trim().toLowerCase()
-  let user = users.find((u) => u.username?.toLowerCase() === cleanUsername)
-  if (!user) {
-    // Fallback: if not found in cache/remote, try fresh read from local/initial users
-    const freshUsers = await getAllUsers()
-    user = freshUsers.find((u) => u.username?.toLowerCase() === cleanUsername)
-    if (!user) {
-      throw new Error(`User not found: ${cleanUsername}`)
-    }
+  const deduction = await deductUserBalanceAtomic(cleanUsername, amount)
+  if (!deduction.success) {
+    throw new Error(deduction.error || 'Insufficient balance or user not found')
   }
-
-  if (user.balance < amount) {
-    throw new Error(`Insufficient balance. Current balance: $${user.balance.toFixed(2)}`)
-  }
-
-  user.balance = +(user.balance - amount).toFixed(2)
-  await saveAllUsers(users)
 
   // Update pool
   if (side === 'up') {
@@ -359,7 +334,7 @@ export async function placeMemoryBet(username: string, roundId: string, side: 'u
   const bet: MemoryBet = {
     id: `bet-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     roundId,
-    username: username.toLowerCase(),
+    username: cleanUsername,
     side,
     amount,
     payout: null,
@@ -368,7 +343,7 @@ export async function placeMemoryBet(username: string, roundId: string, side: 'u
   }
   betsList.push(bet)
 
-  return { bet, newBalance: user.balance }
+  return { bet, newBalance: deduction.balance }
 }
 
 /**

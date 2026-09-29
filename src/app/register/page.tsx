@@ -125,7 +125,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex items-center gap-2 text-[11px] text-gamdom-textDim justify-center">
-          <Check size={12} className="text-gamdom-green" /> Balance $1000 starting credits • Stored via Pinata IPFS
+          <Check size={12} className="text-gamdom-green" /> Balance $1000 starting credits • Stored via PostgreSQL Cloud Database
         </div>
       </div>
     </div>

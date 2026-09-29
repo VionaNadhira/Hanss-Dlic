@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server'
-import { getAllUsers } from '@/lib/pinataDb'
+import { getLeaderboardUsers } from '@/lib/db/queries'
 import { getUserTier } from '@/lib/game/tiers'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const users = await getAllUsers()
+    const topUsers = await getLeaderboardUsers(50)
 
-    // Sort by balance descending
-    const sorted = [...users].sort((a, b) => (b.balance || 0) - (a.balance || 0))
-
-    const leaderboard = sorted.slice(0, 50).map((user, index) => {
-      const score = Math.floor(user.balance || 0)
+    const leaderboard = topUsers.map((user, index) => {
+      const score = user.score || Math.floor(user.balance)
       const tier = getUserTier(score)
 
       return {

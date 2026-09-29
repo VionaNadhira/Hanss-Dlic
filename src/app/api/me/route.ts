@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllUsers } from '@/lib/pinataDb'
+import { getUserByUsername, getUserRank } from '@/lib/db/queries'
 import { getUserTier } from '@/lib/game/tiers'
 
 export const dynamic = 'force-dynamic'
+
+const FAUCET_COOLDOWN_HOURS = Number(process.env.FAUCET_COOLDOWN_HOURS) || 1
+const FAUCET_COOLDOWN_MS = FAUCET_COOLDOWN_HOURS * 60 * 60 * 1000
 
 export async function GET(req: NextRequest) {
   const username = req.cookies.get('dlicom_user')?.value
@@ -11,17 +14,19 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const users = await getAllUsers()
-    const user = users.find((u) => u.username.toLowerCase() === username.toLowerCase())
+    const user = await getUserByUsername(username)
     if (!user) {
       return NextResponse.json({ user: null })
     }
 
-    const sorted = [...users].sort((a, b) => (b.balance || 0) - (a.balance || 0))
-    const rank = sorted.findIndex((u) => u.username.toLowerCase() === username.toLowerCase()) + 1
-
-    const score = Math.floor(user.balance || 0)
+    const rank = await getUserRank(user.username, user.balance)
+    const score = user.score || Math.floor(user.balance)
     const tierProgress = getUserTier(score)
+
+    const lastClaim = user.lastFaucetAt ? new Date(user.lastFaucetAt).getTime() : 0
+    const elapsed = Date.now() - lastClaim
+    const canClaimFaucet = elapsed >= FAUCET_COOLDOWN_MS
+    const faucetRemainingMs = canClaimFaucet ? 0 : FAUCET_COOLDOWN_MS - elapsed
 
     return NextResponse.json({
       user: {
@@ -30,10 +35,10 @@ export async function GET(req: NextRequest) {
         balance: user.balance.toString(),
         score,
         rank: rank > 0 ? rank : 1,
-        streakDays: 1,
+        streakDays: user.streakDays || 1,
         streakSecondsLeft: 86400,
-        canClaimFaucet: true,
-        faucetRemainingMs: 0,
+        canClaimFaucet,
+        faucetRemainingMs,
         tier: tierProgress.currentTier,
         tierColor: tierProgress.currentTierColor,
         tierProgress: tierProgress.progressPercent,

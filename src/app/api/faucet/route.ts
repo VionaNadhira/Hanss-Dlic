@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllUsers, saveAllUsers } from '@/lib/pinataDb'
+import { getUserByUsername, claimFaucetAtomic } from '@/lib/db/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,13 +14,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const users = await getAllUsers()
-    const user = users.find((u) => u.username === username.toLowerCase())
+    const user = await getUserByUsername(username)
     if (!user) {
       return NextResponse.json({ canClaim: false, remainingMs: 0, requiresLogin: true }, { status: 401 })
     }
 
-    const lastClaim = user.lastFaucetClaim ?? 0
+    const lastClaim = user.lastFaucetAt ? new Date(user.lastFaucetAt).getTime() : 0
     const elapsed = Date.now() - lastClaim
     if (elapsed >= COOLDOWN_MS) {
       return NextResponse.json({ canClaim: true, remainingMs: 0, amount: FAUCET_AMOUNT })
@@ -39,30 +38,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const users = await getAllUsers()
-    const user = users.find((u) => u.username === username.toLowerCase())
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 })
+    const result = await claimFaucetAtomic(username, FAUCET_AMOUNT, COOLDOWN_MS)
+    if (result.success === false) {
+      const status = result.error === 'User not found' ? 404 : 429
+      return NextResponse.json(result, { status })
     }
-
-    const lastClaim = user.lastFaucetClaim ?? 0
-    const elapsed = Date.now() - lastClaim
-    if (elapsed < COOLDOWN_MS) {
-      return NextResponse.json(
-        { success: false, error: 'Faucet cooldown active', remainingMs: COOLDOWN_MS - elapsed },
-        { status: 429 }
-      )
-    }
-
-    user.balance += FAUCET_AMOUNT
-    user.lastFaucetClaim = Date.now()
-    await saveAllUsers(users)
 
     return NextResponse.json({
       success: true,
       amount: FAUCET_AMOUNT,
-      newBalance: user.balance,
-      nextClaimMs: COOLDOWN_MS,
+      newBalance: result.newBalance,
+      nextClaimMs: result.nextClaimMs,
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Faucet claim failed'

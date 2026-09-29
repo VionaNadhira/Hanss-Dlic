@@ -17,7 +17,7 @@ export const users = pgTable('users', {
   username: varchar('username', { length: 32 }).notNull().unique(),
   passwordHash: varchar('password_hash', { length: 128 }).notNull(),
   salt: varchar('salt', { length: 64 }).notNull(),
-  balance: bigint('balance', { mode: 'bigint' }).notNull().default(BigInt(1000)),
+  balance: numeric('balance', { precision: 18, scale: 2 }).notNull().default('1000.00'),
   score: integer('score').notNull().default(1000),
   streakDays: integer('streak_days').notNull().default(0),
   lastBetDay: varchar('last_bet_day', { length: 10 }), // YYYY-MM-DD UTC
@@ -25,6 +25,23 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
 })
+
+export const chatMessages = pgTable(
+  'chat_messages',
+  {
+    id: varchar('id', { length: 64 }).primaryKey(),
+    username: varchar('username', { length: 32 }).notNull(),
+    message: varchar('message', { length: 500 }).notNull(),
+    time: varchar('time', { length: 16 }).notNull(),
+    timestamp: bigint('timestamp', { mode: 'number' }).notNull(),
+    replyToId: varchar('reply_to_id', { length: 64 }),
+    replyToUser: varchar('reply_to_user', { length: 32 }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    idxChatTs: index('idx_chat_messages_ts').on(table.timestamp),
+  })
+)
 
 export const rounds = pgTable(
   'rounds',

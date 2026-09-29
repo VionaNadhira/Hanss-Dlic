@@ -1,67 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
-import fs from 'fs'
-import path from 'path'
+import {
+  getChatMessagesDb,
+  saveChatMessageDb,
+  ChatMessage,
+  ChatReplyTo,
+} from '@/lib/db/queries'
 
-const DB_METADATA_NAME = 'dlicom-chat'
-const LOCAL_DB_PATH = path.join(process.cwd(), '.chat-db.json')
-const TMP_DB_PATH = path.join('/tmp', '.chat-db.json')
+export const dynamic = 'force-dynamic'
 
-function getAuthHeaders(): Record<string, string> {
-  const jwt = process.env.PINATA_JWT
-  if (jwt) {
-    return { Authorization: `Bearer ${jwt}` }
-  }
-  const apiKey = process.env.VITE_PINATA_API_KEY || process.env.PINATA_API_KEY
-  const secretKey = process.env.VITE_PINATA_SECRET_KEY || process.env.PINATA_SECRET_KEY
-  if (apiKey && secretKey) {
-    return {
-      pinata_api_key: apiKey,
-      pinata_secret_api_key: secretKey,
-    }
-  }
-  return {}
-}
-
-export interface ChatReplyTo {
-  id: string
-  user: string
-}
-
-export interface ChatMessage {
-  id: string
-  user: string
-  message: string
-  time: string
-  timestamp: number
-  replyTo?: ChatReplyTo
-}
-
-// In-memory cache for ultra-fast chat polling
+// Short in-memory cache for ultra-fast polling
 let chatMemoryCache: ChatMessage[] | null = null
 let lastChatFetchTime = 0
-const CHAT_CACHE_TTL_MS = 3000 // 3 seconds
-
-function readLocalChat(): ChatMessage[] | null {
-  for (const p of [LOCAL_DB_PATH, TMP_DB_PATH]) {
-    try {
-      if (fs.existsSync(p)) {
-        const raw = fs.readFileSync(p, 'utf-8')
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) return parsed
-      }
-    } catch {}
-  }
-  return null
-}
-
-function writeLocalChat(messages: ChatMessage[]) {
-  for (const p of [LOCAL_DB_PATH, TMP_DB_PATH]) {
-    try {
-      fs.writeFileSync(p, JSON.stringify(messages))
-    } catch {}
-  }
-}
+const CHAT_CACHE_TTL_MS = 2000 // 2 seconds
 
 async function getChatMessages(): Promise<ChatMessage[]> {
   const now = Date.now()
@@ -69,96 +20,15 @@ async function getChatMessages(): Promise<ChatMessage[]> {
     return chatMemoryCache
   }
 
-  if (chatMemoryCache === null) {
-    const local = readLocalChat()
-    if (local && local.length > 0) {
-      chatMemoryCache = local
-      lastChatFetchTime = now
-    }
-  }
-
-  const authHeaders = getAuthHeaders()
-  if (Object.keys(authHeaders).length === 0) {
-    return chatMemoryCache ?? readLocalChat() ?? []
-  }
-
-  const gateway = process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud'
   try {
-    const listRes = await fetch(
-      `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
-      { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(3500) }
-    )
-    if (!listRes.ok) throw new Error('pinList failed')
-    const listData = await listRes.json()
-    if (!listData.rows?.length) {
-      return chatMemoryCache ?? readLocalChat() ?? []
-    }
-
-    const ipfsHash = listData.rows[0].ipfs_pin_hash
-    const ipfsRes = await fetch(`${gateway}/ipfs/${ipfsHash}`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(3500),
-    })
-    if (!ipfsRes.ok) throw new Error('ipfs fetch failed')
-    const data = await ipfsRes.json()
-    if (Array.isArray(data)) {
-      chatMemoryCache = data
-      lastChatFetchTime = Date.now()
-      writeLocalChat(data)
-      return data
-    }
-  } catch {
-    // If network fails or times out, return cached
+    const messages = await getChatMessagesDb(50)
+    chatMemoryCache = messages
+    lastChatFetchTime = now
+    return messages
+  } catch (err) {
+    console.error('[getChatMessages] DB error:', err)
+    return chatMemoryCache || []
   }
-
-  return chatMemoryCache ?? readLocalChat() ?? []
-}
-
-async function saveChatMessages(messages: ChatMessage[]): Promise<void> {
-  chatMemoryCache = messages
-  lastChatFetchTime = Date.now()
-  writeLocalChat(messages)
-
-  const authHeaders = getAuthHeaders()
-  if (Object.keys(authHeaders).length === 0) return
-
-  // Asynchronous background upload to Pinata
-  fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders,
-    },
-    body: JSON.stringify({
-      pinataContent: messages,
-      pinataMetadata: { name: DB_METADATA_NAME },
-    }),
-    signal: AbortSignal.timeout(6000),
-  }).then(async (res) => {
-    if (res.ok) {
-      // Async clean up older pins
-      try {
-        const listRes = await fetch(
-          `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=10&sortBy=date_pinned&sortOrder=DESC`,
-          { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(4000) }
-        )
-        if (listRes.ok) {
-          const listData = await listRes.json()
-          if (listData.rows?.length > 2) {
-            const oldPins = listData.rows.slice(2, 6)
-            await Promise.allSettled(
-              oldPins.map((p: { ipfs_pin_hash: string }) =>
-                fetch(`https://api.pinata.cloud/pinning/unpin/${p.ipfs_pin_hash}`, {
-                  method: 'DELETE',
-                  headers: authHeaders,
-                })
-              )
-            )
-          }
-        }
-      } catch {}
-    }
-  }).catch(() => {})
 }
 
 export async function GET() {
@@ -183,8 +53,7 @@ export async function POST(req: NextRequest) {
 
     const messages = await getChatMessages()
 
-    // Resolve reply target from the stored message rather than trusting the client,
-    // so a client cannot fake the author of the message being replied to.
+    // Resolve reply target from the stored message
     let replyTo: ChatReplyTo | undefined
     const replyToId = typeof body.replyToId === 'string' ? body.replyToId : ''
     if (replyToId) {
@@ -204,11 +73,16 @@ export async function POST(req: NextRequest) {
       ...(replyTo ? { replyTo } : {}),
     }
 
-    const updated = [...messages, newMsg].slice(-50)
-    await saveChatMessages(updated)
+    // Save to PostgreSQL
+    await saveChatMessageDb(newMsg)
+
+    // Update memory cache
+    chatMemoryCache = [...(chatMemoryCache || []), newMsg].slice(-50)
+    lastChatFetchTime = Date.now()
 
     return NextResponse.json({ success: true, message: newMsg })
-  } catch {
+  } catch (err) {
+    console.error('[POST /api/chat] error:', err)
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
   }
 }

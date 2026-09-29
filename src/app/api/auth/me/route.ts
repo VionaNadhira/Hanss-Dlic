@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllUsers } from '@/lib/pinataDb'
+import { getUserByUsername } from '@/lib/db/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,9 +10,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ user: null })
     }
 
-    const users = await getAllUsers()
-    const user = users.find((u) => u.username === username.toLowerCase())
-
+    const user = await getUserByUsername(username)
     if (!user) {
       return NextResponse.json({ user: null })
     }
@@ -21,7 +19,7 @@ export async function GET(req: NextRequest) {
       user: {
         username: user.username,
         balance: user.balance,
-        history: user.history ?? [],
+        history: [],
       },
     })
   } catch {

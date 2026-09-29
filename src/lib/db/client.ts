@@ -8,7 +8,16 @@ declare global {
 }
 
 const connectionString =
-  process.env.DATABASE_URL || 'postgresql://hanss:hansspass@localhost:5432/hanssdlic'
+  process.env.POSTGRES_URL ||
+  process.env.DATABASE_URL ||
+  'postgresql://hanss:hansspass@localhost:5432/hanssdlic'
+
+const isRemote =
+  connectionString.includes('neon.tech') ||
+  connectionString.includes('vercel-storage.com') ||
+  connectionString.includes('supabase.co') ||
+  connectionString.includes('sslmode=require') ||
+  (process.env.NODE_ENV === 'production' && !connectionString.includes('localhost'))
 
 const pool =
   global.__pgPool ||
@@ -17,7 +26,7 @@ const pool =
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
-    ssl: connectionString.includes('neon.tech') ? { rejectUnauthorized: false } : undefined,
+    ssl: isRemote ? { rejectUnauthorized: false } : undefined,
   })
 
 if (process.env.NODE_ENV !== 'production') {

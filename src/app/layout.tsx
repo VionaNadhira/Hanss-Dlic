@@ -6,6 +6,7 @@ import { NotificationProvider } from '@/context/NotificationContext'
 import CasinoShell from '@/components/CasinoShell'
 
 export const metadata = {
+  metadataBase: new URL('https://hanssimiko.vercel.app'),
   title: 'Hanss Dlic',
   description: 'Play provably fair Dice, Mines, Crash, and Blackjack on Hanss Dlic',
   icons: {

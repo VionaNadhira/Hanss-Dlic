@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllUsers, saveAllUsers, hashPassword, generateSalt } from '@/lib/pinataDb'
+import {
+  getUserByUsername,
+  createUser,
+  hashPassword,
+  generateSalt,
+} from '@/lib/db/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,31 +27,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
     }
 
-    const users = await getAllUsers()
-    if (users.find((u) => u.username?.toLowerCase() === cleanUsername)) {
+    const existing = await getUserByUsername(cleanUsername)
+    if (existing) {
       return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
     }
 
     const salt = generateSalt()
     const passwordHash = hashPassword(String(password), salt)
 
-    const newUser = {
+    const user = await createUser({
       username: cleanUsername,
       passwordHash,
       salt,
       balance: 1000,
-      createdAt: Date.now(),
-      lastLogin: Date.now(),
-      history: [],
-    }
-
-    users.push(newUser)
-    await saveAllUsers(users)
+    })
 
     const response = NextResponse.json({
       success: true,
-      username: cleanUsername,
-      balance: 1000,
+      username: user.username,
+      balance: user.balance,
     })
     response.cookies.set('dlicom_user', cleanUsername, {
       httpOnly: true,

@@ -74,7 +74,27 @@ export async function initDb(): Promise<void> {
       );
 
       CREATE INDEX IF NOT EXISTS idx_price_ticks_asset_ts ON price_ticks(asset, ts DESC);
+
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id VARCHAR(64) PRIMARY KEY,
+        username VARCHAR(32) NOT NULL,
+        message VARCHAR(500) NOT NULL,
+        time VARCHAR(16) NOT NULL,
+        timestamp BIGINT NOT NULL,
+        reply_to_id VARCHAR(64),
+        reply_to_user VARCHAR(32),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_chat_messages_ts ON chat_messages(timestamp ASC);
     `)
+
+    // Ensure balance column is numeric(18, 2)
+    try {
+      await client.query(`
+        ALTER TABLE users ALTER COLUMN balance TYPE NUMERIC(18, 2) USING balance::NUMERIC(18, 2);
+      `)
+    } catch {}
 
     // 2. Migrate existing users from .users-db.json if available
     const localDbPath = path.join(process.cwd(), '.users-db.json')
@@ -86,7 +106,7 @@ export async function initDb(): Promise<void> {
           for (const u of usersData) {
             if (!u.username || !u.passwordHash) continue
             const cleanUser = String(u.username).trim().toLowerCase()
-            const balanceInt = Math.max(0, Math.round(Number(u.balance) || 1000))
+            const balanceNum = Math.max(0, Number(u.balance) || 1000)
             const createdAtDate = u.createdAt ? new Date(u.createdAt) : new Date()
             const lastLoginDate = u.lastLogin ? new Date(u.lastLogin) : new Date()
             const lastFaucetDate = u.lastFaucetClaim ? new Date(u.lastFaucetClaim) : null
@@ -95,13 +115,16 @@ export async function initDb(): Promise<void> {
               `
               INSERT INTO users (username, password_hash, salt, balance, score, streak_days, last_faucet_at, created_at, last_login_at)
               VALUES ($1, $2, $3, $4, 1000, 0, $5, $6, $7)
-              ON CONFLICT (username) DO NOTHING
+              ON CONFLICT (username) DO UPDATE
+              SET balance = EXCLUDED.balance,
+                  last_login_at = EXCLUDED.last_login_at,
+                  last_faucet_at = EXCLUDED.last_faucet_at
             `,
               [
                 cleanUser,
                 u.passwordHash,
                 u.salt || '',
-                balanceInt,
+                balanceNum,
                 lastFaucetDate,
                 createdAtDate,
                 lastLoginDate,
@@ -111,6 +134,38 @@ export async function initDb(): Promise<void> {
         }
       } catch (err) {
         console.error('Migration from .users-db.json error:', err)
+      }
+    }
+
+    // 3. Migrate existing chat messages from .chat-db.json if available
+    const localChatPath = path.join(process.cwd(), '.chat-db.json')
+    if (fs.existsSync(localChatPath)) {
+      try {
+        const rawChat = fs.readFileSync(localChatPath, 'utf-8')
+        const chatData = JSON.parse(rawChat)
+        if (Array.isArray(chatData)) {
+          for (const msg of chatData) {
+            if (!msg.id || !msg.user || !msg.message) continue
+            await client.query(
+              `
+              INSERT INTO chat_messages (id, username, message, time, timestamp, reply_to_id, reply_to_user)
+              VALUES ($1, $2, $3, $4, $5, $6, $7)
+              ON CONFLICT (id) DO NOTHING
+            `,
+              [
+                msg.id,
+                msg.user,
+                msg.message,
+                msg.time || '',
+                msg.timestamp || Date.now(),
+                msg.replyTo?.id || null,
+                msg.replyTo?.user || null,
+              ]
+            )
+          }
+        }
+      } catch (err) {
+        console.error('Migration from .chat-db.json error:', err)
       }
     }
   } finally {

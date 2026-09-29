@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllUsers, saveAllUsers, hashPassword } from '@/lib/pinataDb'
+import {
+  getUserByUsername,
+  hashPassword,
+  updateLastLogin,
+} from '@/lib/db/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,8 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanUsername = decodeURIComponent(String(username)).trim().toLowerCase()
-    const users = await getAllUsers()
-    const user = users.find((u) => u.username?.toLowerCase() === cleanUsername)
+    const user = await getUserByUsername(cleanUsername)
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 })
@@ -24,15 +27,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Update last login
-    user.lastLogin = Date.now()
-    await saveAllUsers(users)
+    await updateLastLogin(user.username)
 
     const res = NextResponse.json({
       success: true,
       user: {
         username: user.username,
         balance: user.balance,
-        history: user.history ?? [],
+        history: [],
       },
     })
     res.cookies.set('dlicom_user', user.username, {
