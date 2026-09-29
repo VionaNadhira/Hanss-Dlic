@@ -75,6 +75,19 @@ function readLocalUsers(): UserAccount[] | null {
       }
     } catch {}
   }
+  // Fallback to bundled initial users if no local DB file
+  try {
+    const initPath = path.join(__dirname, 'initialUsers.json')
+    if (fs.existsSync(initPath)) {
+      const raw = fs.readFileSync(initPath, 'utf-8')
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        // seed local DB file for future writes
+        writeLocalUsers(parsed)
+        return parsed
+      }
+    }
+  } catch {}
   return null
 }
 
