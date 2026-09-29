@@ -42,6 +42,28 @@ function getAuthHeaders(): Record<string, string> {
 const DB_METADATA_NAME = 'dlicom-users-db'
 const LOCAL_DB_PATH = path.join(process.cwd(), '.users-db.json')
 const TMP_DB_PATH = path.join('/tmp', '.users-db.json')
+const LOCAL_CID_PATH = path.join(process.cwd(), '.latest-cid')
+const TMP_CID_PATH = path.join('/tmp', '.latest-cid')
+
+function readLatestCID(): string | null {
+  for (const p of [LOCAL_CID_PATH, TMP_CID_PATH]) {
+    try {
+      if (fs.existsSync(p)) {
+        const cid = fs.readFileSync(p, 'utf-8').trim()
+        if (cid) return cid
+      }
+    } catch {}
+  }
+  return null
+}
+
+function writeLatestCID(cid: string) {
+  for (const p of [LOCAL_CID_PATH, TMP_CID_PATH]) {
+    try {
+      fs.writeFileSync(p, cid)
+    } catch {}
+  }
+}
 
 function readLocalUsers(): UserAccount[] | null {
   for (const p of [LOCAL_DB_PATH, TMP_DB_PATH]) {
@@ -126,29 +148,34 @@ export async function getAllUsers(): Promise<UserAccount[]> {
   const gateway = process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud'
 
   try {
-    const listRes = await fetch(
-      `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
-      { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(4000) }
-    )
-    if (!listRes.ok) throw new Error('pinList failed')
-    const listData = await listRes.json()
-    if (!listData.rows?.length) {
-      if (!memoryCache) memoryCache = readLocalUsers() ?? []
-      return memoryCache
+    let ipfsHash = readLatestCID()
+    if (!ipfsHash) {
+      const listRes = await fetch(
+        `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
+        { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(4000) }
+      )
+      if (listRes.ok) {
+        const listData = await listRes.json()
+        if (listData.rows?.length) {
+          ipfsHash = listData.rows[0].ipfs_pin_hash
+        }
+      }
     }
 
-    const ipfsHash = listData.rows[0].ipfs_pin_hash
-    const ipfsRes = await fetch(`${gateway}/ipfs/${ipfsHash}`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(4000),
-    })
-    if (!ipfsRes.ok) throw new Error('IPFS fetch failed')
-    const data = await ipfsRes.json()
-    if (Array.isArray(data)) {
-      memoryCache = data
-      cacheTimestamp = Date.now()
-      writeLocalUsers(data)
-      return data
+    if (ipfsHash) {
+      const ipfsRes = await fetch(`${gateway}/ipfs/${ipfsHash}`, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4000),
+      })
+      if (ipfsRes.ok) {
+        const data = await ipfsRes.json()
+        if (Array.isArray(data) && data.length > 0) {
+          memoryCache = data
+          cacheTimestamp = Date.now()
+          writeLocalUsers(data)
+          return data
+        }
+      }
     }
   } catch {
     // If remote fails or times out, fallback to memory cache or local file
@@ -183,6 +210,10 @@ export async function saveAllUsers(users: UserAccount[]): Promise<boolean> {
     })
 
     if (uploadRes.ok) {
+      const resJson = await uploadRes.json()
+      if (resJson.IpfsHash) {
+        writeLatestCID(resJson.IpfsHash)
+      }
       // Clean up old pins asynchronously in the background — never block response
       cleanupOldPins(authHeaders).catch(() => {})
       return true
