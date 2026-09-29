@@ -382,15 +382,15 @@ export default function CrashPage() {
             </div>
 
             {/* Action Button */}
-            <div className="w-full col-start-2 row-start-1 self-stretch flex flex-col justify-center lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
+            <div className="w-full col-start-2 row-start-1 self-end flex flex-col justify-end lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
               {status === 'FLYING' && hasBet && !hasCashedOut ? (
-                <button onClick={handleManualCashout} className="w-full h-full lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all hover:brightness-110 active:scale-[0.98]" style={{ borderRadius: '4px', backgroundColor: '#3bb8f2', color: '#080d13', border: '1px solid #3bb8f2', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)' }}>
+                <button onClick={handleManualCashout} className="w-full h-12 lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all hover:brightness-110 active:scale-[0.98]" style={{ borderRadius: '8px', backgroundColor: '#3bb8f2', color: '#080d13', border: '1px solid #3bb8f2', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)' }}>
                   <span>CASH OUT</span><span className="text-[11px] font-bold" style={{ opacity: 0.8 }}>+${liveWinProfit.toFixed(2)} ({(bet * currentMultiplier).toFixed(2)})</span>
                 </button>
               ) : hasBet ? (
-                <div className="w-full h-full lg:h-10 font-bold text-xs uppercase flex items-center justify-center" style={{ borderRadius: '4px', backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>{hasCashedOut ? 'CASHED OUT SUCCESS' : 'BET PLACED - IN FLIGHT'}</div>
+                <div className="w-full h-12 lg:h-10 font-bold text-xs uppercase flex items-center justify-center" style={{ borderRadius: '8px', backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>{hasCashedOut ? 'CASHED OUT SUCCESS' : 'BET PLACED - IN FLIGHT'}</div>
               ) : (
-                <Button onClick={handlePlaceBet} disabled={status === 'FLYING'} className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]" style={{ borderRadius: '4px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}>
+                <Button onClick={handlePlaceBet} disabled={status === 'FLYING'} className="w-full h-12 lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]" style={{ borderRadius: '8px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}>
                   {status === 'FLYING' ? 'WAIT FOR NEXT ROUND' : 'PLACE BET'}
                 </Button>
               )}

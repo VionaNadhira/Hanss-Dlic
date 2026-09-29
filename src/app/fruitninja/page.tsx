@@ -357,13 +357,13 @@ export default function FruitNinjaRealPage() {
             className={
               gameState === 'playing'
                 ? 'col-span-2 pt-0 lg:pt-6'
-                : 'w-full col-start-2 row-start-1 self-stretch flex items-center lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6'
+                : 'w-full col-start-2 row-start-1 self-end flex items-end lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6'
             }
           >
             {gameState !== 'playing' ? (
               <Button
                 onClick={startGame}
-                className="w-full h-full lg:h-14 rounded-2xl font-black text-xs sm:text-sm tracking-wider uppercase bg-gamdom-green hover:bg-gamdom-greenHover text-gamdom-dark shadow-gamdom-green hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-center px-2"
+                className="w-full h-12 lg:h-14 rounded-2xl font-black text-xs sm:text-sm tracking-wider uppercase bg-gamdom-green hover:bg-gamdom-greenHover text-gamdom-dark shadow-gamdom-green hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-center px-2"
               >
                 <Play size={18} className="shrink-0" /> START GAME (${bet.toFixed(2)})
               </Button>

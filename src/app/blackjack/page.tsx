@@ -458,13 +458,13 @@ export default function BlackjackPage() {
             className={
               gameState === 'playing'
                 ? 'col-span-2 space-y-0 pt-0 lg:space-y-2 lg:pt-6'
-                : 'w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6 lg:space-y-2'
+                : 'w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6 lg:space-y-2'
             }
           >
             {gameState === 'betting' && (
               <Button
                 onClick={handleDeal}
-                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all hover:brightness-110 active:scale-[0.96]"
                 style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
               >
                 DEAL HAND

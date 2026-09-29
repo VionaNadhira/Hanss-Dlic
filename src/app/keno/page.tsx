@@ -688,12 +688,12 @@ export default function KenoPage() {
               )}
             </div>
 
-            <div className="w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:mt-6">
+            <div className="w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:mt-6">
               <button
                 type="button"
                 onClick={handleDraw}
                 disabled={isDrawing}
-                className="w-full self-stretch flex items-center justify-center transition active:scale-[0.99] disabled:opacity-60 hover:brightness-110"
+                className="w-full flex items-center justify-center transition active:scale-[0.99] disabled:opacity-60 hover:brightness-110"
                 style={{
                   minHeight: '56px',
                   height: '56px',
