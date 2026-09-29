@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { pool } from '@/lib/db/client'
-import { hashPassword, generateSalt } from '@/lib/pinataDb'
+import { getAllUsers, saveAllUsers, hashPassword, generateSalt } from '@/lib/pinataDb'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,41 +22,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
     }
 
+    const users = await getAllUsers()
+    if (users.find((u) => u.username === cleanUsername)) {
+      return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
+    }
+
     const salt = generateSalt()
     const passwordHash = hashPassword(String(password), salt)
 
-    const client = await pool.connect()
-    try {
-      // Insert new user with starting balance 1000 pts
-      const res = await client.query(
-        `INSERT INTO users (username, password_hash, salt, balance, score, streak_days)
-         VALUES ($1, $2, $3, 1000, 1000, 0)
-         RETURNING id, username, balance`,
-        [cleanUsername, passwordHash, salt]
-      )
-
-      const user = res.rows[0]
-      const response = NextResponse.json({
-        success: true,
-        username: user.username,
-        balance: Number(user.balance),
-      })
-      response.cookies.set('dlicom_user', user.username, {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30,
-      })
-      return response
-    } catch (dbErr: unknown) {
-      const msg = dbErr instanceof Error ? dbErr.message : ''
-      if (msg.includes('unique') || msg.includes('duplicate')) {
-        return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
-      }
-      throw dbErr
-    } finally {
-      client.release()
+    const newUser = {
+      username: cleanUsername,
+      passwordHash,
+      salt,
+      balance: 1000,
+      createdAt: Date.now(),
+      lastLogin: Date.now(),
+      history: [],
     }
+
+    users.push(newUser)
+    await saveAllUsers(users)
+
+    const response = NextResponse.json({
+      success: true,
+      username: cleanUsername,
+      balance: 1000,
+    })
+    response.cookies.set('dlicom_user', cleanUsername, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+    })
+    return response
   } catch (err) {
     console.error('[register] error:', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

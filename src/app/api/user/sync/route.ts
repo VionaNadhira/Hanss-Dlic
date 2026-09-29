@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { pool } from '@/lib/db/client'
+import { getAllUsers, saveAllUsers } from '@/lib/pinataDb'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * POST /api/user/sync
- * Kept for backward compatibility with BalanceContext.
- * The authoritative balance now lives in Postgres (updated by /api/bets and /api/faucet).
- * This endpoint simply returns the current DB balance — it does NOT allow client-side balance writes.
+ * Syncs balance to Pinata and returns the current balance.
  */
 export async function POST(req: NextRequest) {
   const username = req.cookies.get('dlicom_user')?.value
@@ -15,21 +13,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const client = await pool.connect()
   try {
-    const res = await client.query(
-      `SELECT balance FROM users WHERE username = $1`,
-      [username.toLowerCase()]
-    )
-    if (res.rows.length === 0) {
+    const { balance } = await req.json().catch(() => ({}))
+
+    const users = await getAllUsers()
+    const user = users.find((u) => u.username === username.toLowerCase())
+    if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
-    const balance = Number(res.rows[0].balance)
-    return NextResponse.json({ success: true, balance })
+
+    // If balance provided by client, update it
+    if (typeof balance === 'number' && isFinite(balance) && balance >= 0) {
+      user.balance = balance
+      await saveAllUsers(users)
+    }
+
+    return NextResponse.json({ success: true, balance: user.balance })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Sync failed'
     return NextResponse.json({ error: message }, { status: 500 })
-  } finally {
-    client.release()
   }
 }
