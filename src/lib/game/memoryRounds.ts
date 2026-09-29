@@ -328,11 +328,16 @@ export async function placeMemoryBet(username: string, roundId: string, side: 'u
     throw new Error('Betting is closed for this round')
   }
 
-  // Deduct user balance from Pinata
   const users = await getAllUsers()
-  const user = users.find((u) => u.username.toLowerCase() === username.toLowerCase())
+  const cleanUsername = decodeURIComponent(username).trim().toLowerCase()
+  let user = users.find((u) => u.username?.toLowerCase() === cleanUsername)
   if (!user) {
-    throw new Error('User not found')
+    // Fallback: if not found in cache/remote, try fresh read from local/initial users
+    const freshUsers = await getAllUsers()
+    user = freshUsers.find((u) => u.username?.toLowerCase() === cleanUsername)
+    if (!user) {
+      throw new Error(`User not found: ${cleanUsername}`)
+    }
   }
 
   if (user.balance < amount) {

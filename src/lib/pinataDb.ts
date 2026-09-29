@@ -75,19 +75,6 @@ function readLocalUsers(): UserAccount[] | null {
       }
     } catch {}
   }
-  // Fallback to bundled initial users if no local DB file
-  try {
-    const initPath = path.join(__dirname, 'initialUsers.json')
-    if (fs.existsSync(initPath)) {
-      const raw = fs.readFileSync(initPath, 'utf-8')
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed)) {
-        // seed local DB file for future writes
-        writeLocalUsers(parsed)
-        return parsed
-      }
-    }
-  } catch {}
   return null
 }
 
@@ -160,38 +147,41 @@ export async function getAllUsers(): Promise<UserAccount[]> {
 
   const gateway = process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud'
 
-  try {
-    let ipfsHash = readLatestCID()
-    if (!ipfsHash) {
-      const listRes = await fetch(
-        `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
-        { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(4000) }
-      )
-      if (listRes.ok) {
-        const listData = await listRes.json()
-        if (listData.rows?.length) {
-          ipfsHash = listData.rows[0].ipfs_pin_hash
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      let ipfsHash = readLatestCID()
+      if (!ipfsHash) {
+        const listRes = await fetch(
+          `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
+          { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(10000) }
+        )
+        if (listRes.ok) {
+          const listData = await listRes.json()
+          if (listData.rows?.length) {
+            ipfsHash = listData.rows[0].ipfs_pin_hash
+            writeLatestCID(ipfsHash)
+          }
         }
       }
-    }
 
-    if (ipfsHash) {
-      const ipfsRes = await fetch(`${gateway}/ipfs/${ipfsHash}`, {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(4000),
-      })
-      if (ipfsRes.ok) {
-        const data = await ipfsRes.json()
-        if (Array.isArray(data) && data.length > 0) {
-          memoryCache = data
-          cacheTimestamp = Date.now()
-          writeLocalUsers(data)
-          return data
+      if (ipfsHash) {
+        const ipfsRes = await fetch(`${gateway}/ipfs/${ipfsHash}`, {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(10000),
+        })
+        if (ipfsRes.ok) {
+          const data = await ipfsRes.json()
+          if (Array.isArray(data) && data.length > 0) {
+            memoryCache = data
+            cacheTimestamp = Date.now()
+            writeLocalUsers(data)
+            return data
+          }
         }
       }
+    } catch (err) {
+      console.error(`[getAllUsers] attempt ${attempt + 1} failed:`, err)
     }
-  } catch {
-    // If remote fails or times out, fallback to memory cache or local file
   }
 
   return memoryCache ?? readLocalUsers() ?? []
@@ -219,7 +209,7 @@ export async function saveAllUsers(users: UserAccount[]): Promise<boolean> {
         pinataContent: users,
         pinataMetadata: { name: DB_METADATA_NAME },
       }),
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(10000),
     })
 
     if (uploadRes.ok) {
