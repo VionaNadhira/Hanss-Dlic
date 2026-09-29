@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const users = await getAllUsers()
-    if (users.find((u) => u.username === cleanUsername)) {
+    if (users.find((u) => u.username?.toLowerCase() === cleanUsername)) {
       return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
     }
 

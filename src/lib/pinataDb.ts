@@ -151,17 +151,36 @@ export async function getAllUsers(): Promise<UserAccount[]> {
     try {
       let ipfsHash = readLatestCID()
       if (!ipfsHash) {
-        const listRes = await fetch(
-          `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=1&sortBy=date_pinned&sortOrder=DESC`,
-          { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(10000) }
-        )
-        if (listRes.ok) {
-          const listData = await listRes.json()
-          if (listData.rows?.length) {
-            ipfsHash = listData.rows[0].ipfs_pin_hash
-            writeLatestCID(ipfsHash)
+      const listRes = await fetch(
+        `https://api.pinata.cloud/data/pinList?status=pinned&metadata[name]=${DB_METADATA_NAME}&pageLimit=5&sortBy=date_pinned&sortOrder=DESC`,
+        { headers: authHeaders as HeadersInit, cache: 'no-store', signal: AbortSignal.timeout(10000) }
+      )
+      if (listRes.ok) {
+        const listData = await listRes.json()
+        if (listData.rows?.length) {
+          // Try each CID until one succeeds
+          for (const row of listData.rows) {
+            const candidateHash = row.ipfs_pin_hash
+            try {
+              const ipfsRes = await fetch(`${gateway}/ipfs/${candidateHash}`, {
+                cache: 'no-store',
+                signal: AbortSignal.timeout(10000),
+              })
+              if (ipfsRes.ok) {
+                const data = await ipfsRes.json()
+                if (Array.isArray(data) && data.length > 0) {
+                  ipfsHash = candidateHash
+                  writeLatestCID(ipfsHash)
+                  memoryCache = data
+                  cacheTimestamp = Date.now()
+                  writeLocalUsers(data)
+                  return data
+                }
+              }
+            } catch {}
           }
         }
+      }
       }
 
       if (ipfsHash) {

@@ -10,9 +10,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Username and password required' }, { status: 400 })
     }
 
-    const cleanUsername = String(username).trim().toLowerCase()
+    const cleanUsername = decodeURIComponent(String(username)).trim().toLowerCase()
     const users = await getAllUsers()
-    const user = users.find((u) => u.username === cleanUsername)
+    const user = users.find((u) => u.username?.toLowerCase() === cleanUsername)
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 })
