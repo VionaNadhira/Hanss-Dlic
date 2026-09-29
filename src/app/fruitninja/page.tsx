@@ -325,7 +325,7 @@ export default function FruitNinjaRealPage() {
                     key={c}
                     disabled={gameState === 'playing'}
                     onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
-                    className="bg-gamdom-card hover:bg-gamdom-cardHover border border-gamdom-border text-xs font-black py-1.5 rounded-lg text-gamdom-gold hover:border-gamdom-gold/50 transition disabled:opacity-40"
+                    className="bg-gamdom-card hover:bg-gamdom-cardHover border border-gamdom-border text-xs font-black py-1.5 rounded-lg text-[#3bb8f2] hover:border-[#3bb8f2]/60 hover:bg-[#3bb8f2]/10 transition disabled:opacity-40"
                   >
                     +${c}
                   </button>

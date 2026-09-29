@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
-import { LucideDices, Bomb, Rocket, Spade, Gem, Grid3x3 } from 'lucide-react'
+import { LucideDices, Bomb, Rocket, Spade, Gem, Grid3x3, Flame } from 'lucide-react'
 
 export default function GamesPage() {
   const games = [
@@ -66,6 +66,16 @@ export default function GamesPage() {
       badgeColor: 'bg-gamdom-green/20 text-gamdom-green border-gamdom-green/40',
       image: '/games/fruitninja.jpeg',
       borderColor: 'group-hover:border-gamdom-green/50',
+    },
+    {
+      title: 'BTC Up or Down',
+      description: 'Predict whether Bitcoin price goes up or down in the next 5 minutes',
+      href: '/btcupdown',
+      icon: Flame,
+      badge: 'Live',
+      badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+      image: '/games/btcupdown.jpeg',
+      borderColor: 'group-hover:border-purple-500/50',
     },
   ]
 

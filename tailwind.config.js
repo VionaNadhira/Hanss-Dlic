@@ -20,17 +20,18 @@ module.exports = {
           header: "#10151c",
           border: "#19212a",
           borderLight: "#2b3440",
-          green: "#38B9F2",
-          greenHover: "#6FD0F7",
+          green: "#3bb8f2",
+          greenHover: "#54c6f5",
           gold: "#fbb01b",
           goldHover: "#ffc74d",
           red: "#ff4d4f",
           purple: "#9B51E0",
-          blue: "#38B9F2",
+          blue: "#3bb8f2",
+          blueHover: "#54c6f5",
           text: "#9aa7b4",
           textLight: "#FFFFFF",
           textDim: "#6f7d8a",
-          lime: "#38B9F2"
+          lime: "#3bb8f2"
         }
       },
       fontFamily: {
@@ -38,7 +39,8 @@ module.exports = {
         heading: ["var(--font-dlicom)", "Inter", "sans-serif"]
       },
       boxShadow: {
-        'gamdom-green': '0 0 20px -3px rgba(56, 185, 242, 0.45)',
+        'gamdom-green': '0 0 20px -3px rgba(59, 184, 242, 0.45)',
+        'gamdom-blue': '0 0 20px -3px rgba(59, 184, 242, 0.45)',
         'gamdom-gold': '0 0 20px -3px rgba(251, 176, 27, 0.35)',
         'gamdom-card': '0 8px 30px -4px rgba(0, 0, 0, 0.6)',
       },

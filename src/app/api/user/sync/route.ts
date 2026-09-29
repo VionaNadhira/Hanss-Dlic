@@ -1,40 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllUsers, saveAllUsers, GameHistoryItem } from '@/lib/pinataDb'
+import { pool } from '@/lib/db/client'
 
+export const dynamic = 'force-dynamic'
+
+/**
+ * POST /api/user/sync
+ * Kept for backward compatibility with BalanceContext.
+ * The authoritative balance now lives in Postgres (updated by /api/bets and /api/faucet).
+ * This endpoint simply returns the current DB balance — it does NOT allow client-side balance writes.
+ */
 export async function POST(req: NextRequest) {
+  const username = req.cookies.get('dlicom_user')?.value
+  if (!username) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const client = await pool.connect()
   try {
-    const username = req.cookies.get('dlicom_user')?.value
-    if (!username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await req.json()
-    const { balance, newHistoryItem } = body as {
-      balance?: number
-      newHistoryItem?: GameHistoryItem
-    }
-
-    const users = await getAllUsers()
-    const user = users.find((u) => u.username === username)
-    if (!user) {
+    const res = await client.query(
+      `SELECT balance FROM users WHERE username = $1`,
+      [username.toLowerCase()]
+    )
+    if (res.rows.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
-
-    if (typeof balance === 'number' && balance >= 0) {
-      user.balance = +balance.toFixed(2)
-    }
-
-    if (newHistoryItem) {
-      if (!user.history) user.history = []
-      user.history.unshift(newHistoryItem)
-      if (user.history.length > 50) {
-        user.history = user.history.slice(0, 50)
-      }
-    }
-
-    await saveAllUsers(users)
-    return NextResponse.json({ success: true, balance: user.balance })
-  } catch {
-    return NextResponse.json({ error: 'Sync failed' }, { status: 500 })
+    const balance = Number(res.rows[0].balance)
+    return NextResponse.json({ success: true, balance })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Sync failed'
+    return NextResponse.json({ error: message }, { status: 500 })
+  } finally {
+    client.release()
   }
 }

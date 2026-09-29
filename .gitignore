@@ -35,6 +35,7 @@ yarn-error.log*
 
 # local chat and user db
 .chat-db.json
+.users-db.json
 
 *.tsbuildinfo
 .env*

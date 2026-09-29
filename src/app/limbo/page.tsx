@@ -334,10 +334,10 @@ export default function LimboPage() {
   const setTargetValue = (value: number) => setTargetInput(clampTarget(value).toFixed(2))
 
   const quickActionStyle: React.CSSProperties = {
-    backgroundColor: '#141a22',
-    color: '#9aa7b4',
+    backgroundColor: 'rgba(59, 184, 242, 0.1)',
+    color: '#3bb8f2',
     borderRadius: '4px',
-    border: 'none',
+    border: '1px solid rgba(59, 184, 242, 0.3)',
     padding: '4px 6px',
     fontFamily: FONT,
     fontSize: '12px',
@@ -622,7 +622,7 @@ export default function LimboPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: autoRoll ? 'flex-end' : 'flex-start',
-                  backgroundColor: autoRoll ? '#38B9F2' : '#2b3440',
+                  backgroundColor: autoRoll ? '#3bb8f2' : '#2b3440',
                   transition: 'background-color 150ms ease',
                 }}
               >
@@ -676,7 +676,7 @@ export default function LimboPage() {
                       type="button"
                       disabled={isSpinning}
                       onClick={action.apply}
-                      className="flex-1 transition disabled:opacity-40"
+                      className="flex-1 transition disabled:opacity-40 hover:brightness-110 active:scale-95"
                       style={quickActionStyle}
                     >
                       {action.label}
@@ -720,7 +720,7 @@ export default function LimboPage() {
                       aria-label={action.title}
                       disabled={isSpinning}
                       onClick={action.apply}
-                      className="flex-1 transition disabled:opacity-40"
+                      className="flex-1 transition disabled:opacity-40 hover:brightness-110 active:scale-95"
                       style={quickActionStyle}
                     >
                       {action.label}
@@ -735,9 +735,9 @@ export default function LimboPage() {
                 type="button"
                 onClick={() => handleBetRef.current()}
                 disabled={isSpinning}
-                className="font-bold transition disabled:opacity-60"
+                className="font-bold transition disabled:opacity-60 hover:brightness-110 active:scale-[0.98]"
                 style={{
-                  backgroundColor: '#38B9F2',
+                  backgroundColor: '#3bb8f2',
                   color: '#080d13',
                   borderRadius: '8px',
                   padding: '0',
@@ -752,6 +752,7 @@ export default function LimboPage() {
                   minHeight: '100%',
                   alignSelf: 'stretch',
                   border: 'none',
+                  boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)',
                 }}
               >
                 <Gem size={15} color="#080d13" fill="#080d13" strokeWidth={0} />

@@ -466,9 +466,9 @@ export default function KenoPage() {
                   const isHit = isSelected && isDrawn
 
                   const fill = isHit
-                    ? '#38B9F2'
+                    ? '#3bb8f2'
                     : isSelected
-                      ? '#ffffff'
+                      ? '#3bb8f2'
                       : isDrawn
                         ? '#141a22'
                         : '#080d13'
@@ -599,8 +599,13 @@ export default function KenoPage() {
                       type="button"
                       disabled={isDrawing}
                       onClick={action.apply}
-                      className="transition disabled:opacity-40 hover:border-white hover:text-white"
-                      style={quickActionStyle}
+                      className="transition disabled:opacity-40 hover:bg-[#3bb8f2]/20 hover:border-[#3bb8f2] active:scale-95"
+                      style={{
+                        ...quickActionStyle,
+                        border: '1px solid rgba(59, 184, 242, 0.3)',
+                        color: '#3bb8f2',
+                        backgroundColor: 'rgba(59, 184, 242, 0.1)',
+                      }}
                     >
                       {action.label}
                     </button>
@@ -630,8 +635,13 @@ export default function KenoPage() {
                       type="button"
                       disabled={isDrawing}
                       onClick={action.apply}
-                      className="transition disabled:opacity-40 hover:border-white hover:text-white"
-                      style={quickActionStyle}
+                      className="transition disabled:opacity-40 hover:bg-[#3bb8f2]/20 hover:border-[#3bb8f2] active:scale-95"
+                      style={{
+                        ...quickActionStyle,
+                        border: '1px solid rgba(59, 184, 242, 0.3)',
+                        color: '#3bb8f2',
+                        backgroundColor: 'rgba(59, 184, 242, 0.1)',
+                      }}
                     >
                       {action.label}
                     </button>
@@ -651,7 +661,7 @@ export default function KenoPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span style={{ fontFamily: FONT, fontSize: '14px', color: '#9aa7b4' }}>Top Prize</span>
-                  <span className="font-bold" style={{ fontFamily: FONT, fontSize: '14px', fontWeight: 700, color: '#38B9F2' }}>
+                  <span className="font-bold" style={{ fontFamily: FONT, fontSize: '14px', fontWeight: 700, color: '#3bb8f2' }}>
                     {bestMultiplier > 0 ? `${bestMultiplier.toFixed(2)}x` : '—'}
                   </span>
                 </div>
@@ -683,19 +693,19 @@ export default function KenoPage() {
                 type="button"
                 onClick={handleDraw}
                 disabled={isDrawing}
-                className="w-full self-stretch flex items-center justify-center transition active:scale-[0.99] disabled:opacity-60"
+                className="w-full self-stretch flex items-center justify-center transition active:scale-[0.99] disabled:opacity-60 hover:brightness-110"
                 style={{
                   minHeight: '56px',
                   height: '56px',
                   width: '100%',
                   borderRadius: '8px',
-                  border: '1px solid #38B9F2',
-                  backgroundColor: '#38B9F2',
+                  border: '1px solid #3bb8f2',
+                  backgroundColor: '#3bb8f2',
                   color: '#080d13',
                   fontFamily: FONT,
                   fontSize: '18px',
                   fontWeight: 700,
-                  boxShadow: 'none',
+                  boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)',
                 }}
               >
                 <span className="flex items-center gap-1.5">

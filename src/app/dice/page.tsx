@@ -142,10 +142,10 @@ export default function DicePage() {
                   />
                 </div>
                 <div className="grid grid-cols-4 gap-1.5 mt-2">
-                  <button disabled={isRolling} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>½</button>
-                  <button disabled={isRolling} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
-                  <button disabled={isRolling} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
-                  <button disabled={isRolling} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
+                  <button disabled={isRolling} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>½</button>
+                  <button disabled={isRolling} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
+                  <button disabled={isRolling} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
+                  <button disabled={isRolling} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
                 </div>
               </div>
 
@@ -165,7 +165,7 @@ export default function DicePage() {
                   value={target}
                   onChange={(e) => setTarget(Number(e.target.value))}
                   className="w-full h-2.5 rounded-[4px] cursor-pointer"
-                  style={{ accentColor: '#38B9F2', backgroundColor: '#141a22' }}
+                  style={{ accentColor: '#3bb8f2', backgroundColor: '#141a22' }}
                 />
                 <div className="flex justify-between text-xs font-bold px-1 mt-1" style={{ color: '#6f7d8a', fontFamily: "'Gamdom', sans-serif", fontSize: '12px' }}>
                   <span>2</span>
@@ -178,7 +178,7 @@ export default function DicePage() {
               <div className="p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px' }}>
                 <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
                   <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Multiplier</span>
-                  <span className="font-bold text-sm" style={{ color: '#38B9F2' }}>{multiplier.toFixed(2)}x</span>
+                  <span className="font-bold text-sm" style={{ color: '#3bb8f2' }}>{multiplier.toFixed(2)}x</span>
                 </div>
                 <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
                   <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Win Chance</span>
@@ -197,13 +197,13 @@ export default function DicePage() {
               )}
             </div>
 
-            {/* Action Button — primary #ffffff / inverse #080d13 */}
+            {/* Action Button — primary #3bb8f2 */}
             <div className="w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
               <Button
                 onClick={handleRoll}
                 disabled={isRolling}
-                className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0"
-                style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 400, boxShadow: 'none', border: '1px solid transparent' }}
+                className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
+                style={{ borderRadius: '4px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
               >
                 {isRolling ? 'ROLLING...' : 'ROLL DICE'}
               </Button>

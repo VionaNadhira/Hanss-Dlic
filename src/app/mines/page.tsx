@@ -202,10 +202,10 @@ export default function MinesPage() {
                   />
                 </div>
                 <div className="grid grid-cols-4 gap-1.5 mt-2">
-                  <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>½</button>
-                  <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
-                  <button disabled={gameState === 'playing'} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
-                  <button disabled={gameState === 'playing'} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40" style={{ backgroundColor: 'transparent', border: '1px solid #ffffff', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
+                  <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>½</button>
+                  <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
+                  <button disabled={gameState === 'playing'} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
+                  <button disabled={gameState === 'playing'} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
                 </div>
               </div>
 
@@ -228,8 +228,8 @@ export default function MinesPage() {
                       className="py-2 text-xs font-bold transition disabled:opacity-40"
                       style={{
                         borderRadius: '4px',
-                        border: minesCount === count ? '1px solid #ffffff' : '1px solid #19212a',
-                        backgroundColor: minesCount === count ? '#ffffff' : 'transparent',
+                        border: minesCount === count ? '1px solid #3bb8f2' : '1px solid #19212a',
+                        backgroundColor: minesCount === count ? '#3bb8f2' : 'transparent',
                         color: minesCount === count ? '#080d13' : '#9aa7b4',
                         fontFamily: "'Gamdom', sans-serif",
                       }}
@@ -244,7 +244,7 @@ export default function MinesPage() {
               <div className="p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px' }}>
                 <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
                   <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Current Multiplier</span>
-                  <span className="font-bold text-sm" style={{ color: '#38B9F2' }}>
+                  <span className="font-bold text-sm" style={{ color: '#3bb8f2' }}>
                     {revealedCount > 0 ? `${currentMultiplier.toFixed(2)}x` : '1.00x'}
                   </span>
                 </div>
@@ -269,27 +269,27 @@ export default function MinesPage() {
               )}
             </div>
 
-            {/* Action Button — token button: primary #ffffff / secondary transparent + no shadow */}
+            {/* Action Button — token button: primary #3bb8f2 */}
             <div className="w-full col-start-2 row-start-1 self-stretch flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
               {gameState === 'playing' ? (
                 <button
                   onClick={handleCashOut}
                   disabled={revealedCount === 0}
-                  className={`w-full h-full lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:opacity-90 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
+                  className={`w-full h-full lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:brightness-110 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
                   style={{
                     borderRadius: '4px',
                     borderWidth: '1px',
-                    backgroundColor: revealedCount > 0 ? '#ffffff' : 'transparent',
-                    color: revealedCount > 0 ? '#080d13' : '#ffffff',
-                    borderColor: revealedCount > 0 ? 'transparent' : '#ffffff',
+                    backgroundColor: revealedCount > 0 ? '#3bb8f2' : 'transparent',
+                    color: revealedCount > 0 ? '#080d13' : '#3bb8f2',
+                    borderColor: '#3bb8f2',
                     fontFamily: "'Gamdom', sans-serif",
-                    fontWeight: 400,
-                    boxShadow: 'none',
+                    fontWeight: 700,
+                    boxShadow: revealedCount > 0 ? '0 0 20px -3px rgba(59, 184, 242, 0.45)' : 'none',
                   }}
                 >
                   <span>CASH OUT</span>
                   {revealedCount > 0 && (
-                    <span className="text-[11px] font-bold" style={{ color: '#080d13', opacity: 0.7 }}>
+                    <span className="text-[11px] font-bold" style={{ color: '#080d13', opacity: 0.85 }}>
                       ${currentWinAmount.toFixed(2)} ({currentMultiplier.toFixed(2)}x)
                     </span>
                   )}
@@ -297,8 +297,8 @@ export default function MinesPage() {
               ) : (
                 <Button
                   onClick={handleStartGame}
-                  className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0"
-                  style={{ borderRadius: '4px', backgroundColor: '#ffffff', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 400, boxShadow: 'none', border: '1px solid transparent' }}
+                  className="w-full h-full lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
+                  style={{ borderRadius: '4px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
                 >
                   BET & START
                 </Button>

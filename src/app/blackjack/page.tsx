@@ -389,8 +389,8 @@ export default function BlackjackPage() {
                     key={c}
                     disabled={gameState !== 'betting'}
                     onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
-                    className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40"
-                    style={{ backgroundColor: '#423C3A', color: c === 1 ? '#38B9F2' : '#8E9192', border: '1px solid #5F5C58' }}
+                    className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20 hover:border-[#3bb8f2]"
+                    style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
                   >
                     +${c}
                   </button>
@@ -402,24 +402,24 @@ export default function BlackjackPage() {
                 <button
                   disabled={gameState !== 'betting'}
                   onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))}
-                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40"
-                  style={{ backgroundColor: '#423C3A', color: '#8E9192', border: '1px solid #5F5C58' }}
+                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                  style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
                 >
                   ½
                 </button>
                 <button
                   disabled={gameState !== 'betting'}
                   onClick={() => setBet((prev) => +(prev * 2).toFixed(2))}
-                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40"
-                  style={{ backgroundColor: '#423C3A', color: '#8E9192', border: '1px solid #5F5C58' }}
+                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                  style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
                 >
                   2×
                 </button>
                 <button
                   disabled={gameState !== 'betting'}
                   onClick={() => setBet(10.00)}
-                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40"
-                  style={{ backgroundColor: '#423C3A', color: '#8E9192', border: '1px solid #5F5C58' }}
+                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                  style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
                 >
                   RESET
                 </button>
@@ -430,7 +430,7 @@ export default function BlackjackPage() {
             <div className="rounded-[8px] p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#0F151B', border: '1px solid #19212A' }}>
               <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
                 <span className="font-medium">Current Hand Bet</span>
-                <span className="font-bold" style={{ color: '#38B9F2' }}>${bet.toFixed(2)}</span>
+                <span className="font-bold" style={{ color: '#3bb8f2' }}>${bet.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
                 <span className="font-medium">Player Hand Total</span>
@@ -464,8 +464,8 @@ export default function BlackjackPage() {
             {gameState === 'betting' && (
               <Button
                 onClick={handleDeal}
-                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all active:scale-[0.96]"
-                style={{ backgroundColor: '#38B9F2', color: '#000000', boxShadow: 'rgba(56, 185, 242, 0.28) 0px 0px 6.2px 0px', fontFamily: "'Luckiest Guy', serif" }}
+                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
               >
                 DEAL HAND
               </Button>
@@ -476,15 +476,15 @@ export default function BlackjackPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={handleHit}
-                    className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all active:scale-[0.96]"
-                    style={{ backgroundColor: '#38B9F2', color: '#000000', boxShadow: 'rgba(56, 185, 242, 0.28) 0px 0px 6.2px 0px', fontFamily: "'Luckiest Guy', serif" }}
+                    className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                    style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
                   >
                     HIT
                   </button>
                   <button
                     onClick={handleStand}
-                    className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all active:scale-[0.96]"
-                    style={{ backgroundColor: '#131A22', color: '#FFFFFF', border: '1px solid #19212A', fontFamily: "'Luckiest Guy', serif" }}
+                    className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/10 active:scale-[0.96]"
+                    style={{ backgroundColor: '#131A22', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
                   >
                     STAND
                   </button>
@@ -492,8 +492,8 @@ export default function BlackjackPage() {
                 {playerHand.length === 2 && balance >= bet && (
                   <button
                     onClick={handleDoubleDown}
-                    className="w-full h-10 font-bold rounded-[10px] text-xs uppercase transition-all active:scale-[0.96]"
-                    style={{ backgroundColor: '#514B47', color: '#FFFFFF', border: '1px solid #5F5C58', fontFamily: "'Luckiest Guy', serif" }}
+                    className="w-full h-10 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/20 active:scale-[0.96]"
+                    style={{ backgroundColor: 'rgba(59, 184, 242, 0.12)', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
                   >
                     DOUBLE DOWN (+${bet.toFixed(2)})
                   </button>
@@ -504,8 +504,8 @@ export default function BlackjackPage() {
             {gameState === 'resolved' && (
               <Button
                 onClick={handleNewRound}
-                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all active:scale-[0.96]"
-                style={{ backgroundColor: '#38B9F2', color: '#000000', boxShadow: 'rgba(56, 185, 242, 0.28) 0px 0px 6.2px 0px', fontFamily: "'Luckiest Guy', serif" }}
+                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.96]"
+                style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
               >
                 <RefreshCw size={17} /> PLAY AGAIN
               </Button>
@@ -513,90 +513,114 @@ export default function BlackjackPage() {
           </div>
         </div>
 
-        {/* Felt Table Area */}
-        <div className="flex-1 p-4 sm:p-6 md:p-10 flex flex-col justify-between items-center min-h-[360px] sm:min-h-[520px] relative border-t lg:border-t-0 order-1 lg:order-2" style={{ backgroundColor: '#080D13', borderColor: '#19212A' }}>
-          <div className="text-center select-none opacity-15 pointer-events-none mt-2">
-            <div className="text-xl sm:text-2xl font-bold tracking-widest uppercase" style={{ color: '#FFFFFF', fontFamily: "'Luckiest Guy', serif" }}>
-              BLACKJACK PAYS 3 TO 2
-            </div>
-            <div className="text-[10px] sm:text-xs uppercase font-semibold" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif" }}>
-              Dealer Must Draw to 16 and Stand on all 17s
-            </div>
-          </div>
-
-          {/* Dealer Area */}
-          <div className="flex flex-col items-center gap-2 z-10">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1.2px' }}>
-              <span>Dealer Hand</span>
-              {dealerHand.length > 0 && (
-                <span className="px-2.5 py-0.5 rounded-[8px] font-bold" style={{ backgroundColor: '#0F151B', color: '#FFFFFF', border: '1px solid #19212A' }}>
-                  {dealerScore}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-3 min-h-[110px]">
-              {dealerHand.map((card, idx) => {
-                const isHoleHidden = idx === 1 && dealerHoleCardHidden
-                return (
-                  <CardView
-                    key={idx}
-                    card={card}
-                    hidden={isHoleHidden}
-                  />
-                )
-              })}
-              {dealerHand.length === 0 && (
-                <div className="w-16 h-24 rounded-[10px] border-2 border-dashed flex items-center justify-center text-xs font-bold" style={{ borderColor: '#19212A', color: '#818E9D' }}>
-                  Empty
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Outcome Banner */}
-          <div className="h-12 flex items-center justify-center z-10">
-            {outcomeMessage && (
-              <div
-                className={`px-6 py-2 rounded-full font-bold text-xs uppercase flex items-center gap-2 ${
-                  outcomeType === 'win'
-                    ? 'border'
-                    : outcomeType === 'push'
-                    ? 'border'
-                    : 'border'
-                }`}
-                style={{
-                  backgroundColor: outcomeType === 'win' ? '#38B9F2' : outcomeType === 'push' ? '#E2E8F0' : '#DB585D',
-                  color: outcomeType === 'win' ? '#000000' : outcomeType === 'push' ? '#000000' : '#FFFFFF',
-                  borderColor: outcomeType === 'win' ? '#38B9F2' : outcomeType === 'push' ? '#E2E8F0' : '#DB585D',
-                  boxShadow: outcomeType === 'win' ? 'rgba(56, 185, 242,0.28) 0 0 6.2px 0' : 'none',
-                  fontFamily: "'Luckiest Guy', serif",
-                }}
-              >
-                {outcomeType === 'win' && <Sparkles size={16} />}
-                <span>{outcomeMessage}</span>
+        {/* Felt Table Area with custom bg.png */}
+        <div
+          className="flex-1 relative border-t lg:border-t-0 order-1 lg:order-2 overflow-hidden select-none min-h-[460px] sm:min-h-[520px] lg:min-h-[580px]"
+          style={{
+            backgroundImage: "url('/bj/bg.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#080D13',
+            borderColor: '#19212A',
+          }}
+        >
+          {/* Inner content constrained to the oval table felt area.
+              The oval table in bg.png spans roughly: top 8% → 72% of height, left 5% → right 5%.
+              We overlay a flex column that sits within that zone. */}
+          <div
+            className="absolute inset-x-0 flex flex-col items-center justify-between"
+            style={{
+              top: '5%',
+              bottom: '38%',
+              paddingLeft: '8%',
+              paddingRight: '8%',
+            }}
+          >
+            {/* Table watermark text */}
+            <div className="text-center select-none opacity-20 pointer-events-none">
+              <div className="text-xs sm:text-sm md:text-base font-bold tracking-widest uppercase text-white/50" style={{ fontFamily: "'Luckiest Guy', serif" }}>
+                BLACKJACK PAYS 3 TO 2
               </div>
-            )}
-          </div>
-
-          {/* Player Area */}
-          <div className="flex flex-col items-center gap-2 mb-2 z-10">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1.2px' }}>
-              <span>Player Hand</span>
-              {playerHand.length > 0 && (
-                <span className="px-2.5 py-0.5 rounded-[8px] font-bold" style={{ backgroundColor: '#0F151B', color: '#FFFFFF', border: '1px solid #19212A' }}>
-                  {playerScore}
-                </span>
-              )}
+              <div className="text-[8px] sm:text-[9px] uppercase font-semibold text-[#818E9D]" style={{ fontFamily: "'Luckiest Guy', serif" }}>
+                Dealer Must Draw to 16 and Stand on all 17s
+              </div>
             </div>
-            <div className="flex items-center gap-3 min-h-[110px]">
-              {playerHand.map((card, idx) => (
-                <CardView key={idx} card={card} hidden={false} />
-              ))}
-              {playerHand.length === 0 && (
-                <div className="w-16 h-24 rounded-[10px] border-2 border-dashed flex items-center justify-center text-xs font-bold" style={{ borderColor: '#19212A', color: '#818E9D' }}>
-                  Empty
+
+            {/* Dealer Area */}
+            <div className="flex flex-col items-center gap-1 z-10">
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1px' }}>
+                <span>Dealer Hand</span>
+                {dealerHand.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-[6px] font-bold text-[10px] sm:text-[11px]" style={{ backgroundColor: 'rgba(15, 21, 27, 0.85)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}>
+                    {dealerScore}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2" style={{ minHeight: '92px' }}>
+                {dealerHand.map((card, idx) => {
+                  const isHoleHidden = idx === 1 && dealerHoleCardHidden
+                  return (
+                    <CardView
+                      key={idx}
+                      card={card}
+                      hidden={isHoleHidden}
+                    />
+                  )
+                })}
+                {dealerHand.length === 0 && (
+                  <div
+                    className="rounded-[8px] border-2 border-dashed flex items-center justify-center text-[10px] font-bold"
+                    style={{ width: 60, height: 88, borderColor: 'rgba(59, 184, 242, 0.25)', color: '#818E9D', backgroundColor: 'rgba(15, 21, 27, 0.4)' }}
+                  >
+                    Empty
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Outcome Banner */}
+            <div className="flex items-center justify-center z-10" style={{ minHeight: '32px' }}>
+              {outcomeMessage && (
+                <div
+                  className="px-4 py-1 sm:px-5 sm:py-1.5 rounded-full font-bold text-xs uppercase flex items-center gap-2 shadow-xl backdrop-blur-md"
+                  style={{
+                    backgroundColor: outcomeType === 'win' ? '#3bb8f2' : outcomeType === 'push' ? '#E2E8F0' : '#DB585D',
+                    color: outcomeType === 'win' ? '#080d13' : outcomeType === 'push' ? '#080d13' : '#FFFFFF',
+                    borderColor: outcomeType === 'win' ? '#3bb8f2' : outcomeType === 'push' ? '#E2E8F0' : '#DB585D',
+                    boxShadow: outcomeType === 'win' ? '0 0 20px -3px rgba(59, 184, 242, 0.5)' : 'none',
+                    fontFamily: "'Luckiest Guy', serif",
+                  }}
+                >
+                  {outcomeType === 'win' && <Sparkles size={13} />}
+                  <span>{outcomeMessage}</span>
                 </div>
               )}
+            </div>
+
+            {/* Player Area */}
+            <div className="flex flex-col items-center gap-1 z-10">
+              <div className="flex items-center gap-1.5 sm:gap-2" style={{ minHeight: '92px' }}>
+                {playerHand.map((card, idx) => (
+                  <CardView key={idx} card={card} hidden={false} />
+                ))}
+                {playerHand.length === 0 && (
+                  <div
+                    className="rounded-[8px] border-2 border-dashed flex items-center justify-center text-[10px] font-bold"
+                    style={{ width: 60, height: 88, borderColor: 'rgba(59, 184, 242, 0.25)', color: '#818E9D', backgroundColor: 'rgba(15, 21, 27, 0.4)' }}
+                  >
+                    Empty
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1px' }}>
+                <span>Player Hand</span>
+                {playerHand.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-[6px] font-bold text-[10px] sm:text-[11px]" style={{ backgroundColor: 'rgba(15, 21, 27, 0.85)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}>
+                    {playerScore}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -607,11 +631,37 @@ export default function BlackjackPage() {
 }
 
 function CardView({ card, hidden }: { card: Card; hidden: boolean }) {
+  const cardStyle: React.CSSProperties = {
+    width: 60,
+    height: 88,
+    borderRadius: 8,
+    flexShrink: 0,
+    transition: 'transform 0.15s ease',
+    cursor: 'default',
+  }
+
   if (hidden) {
     return (
-      <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-[10px] flex items-center justify-center border-2 select-none" style={{ background: 'linear-gradient(135deg, #423C3A, #19212A)', borderColor: '#5F5C58' }}>
-        <div className="w-12 h-20 sm:w-16 sm:h-24 rounded-[8px] flex items-center justify-center" style={{ border: '1px solid #5F5C58' }}>
-          <span className="text-xl opacity-60" style={{ color: '#38B9F2' }}>♠</span>
+      <div
+        className="flex items-center justify-center select-none shadow-lg"
+        style={{
+          ...cardStyle,
+          background: 'linear-gradient(135deg, #182332, #0b1118)',
+          border: '2px solid #3bb8f2',
+          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.6), 0 0 8px rgba(59, 184, 242, 0.3)',
+        }}
+      >
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: 42,
+            height: 64,
+            borderRadius: 6,
+            border: '1px solid rgba(59, 184, 242, 0.4)',
+            backgroundColor: 'rgba(59, 184, 242, 0.05)',
+          }}
+        >
+          <span className="text-xl opacity-80" style={{ color: '#3bb8f2' }}>♠</span>
         </div>
       </div>
     )
@@ -620,18 +670,28 @@ function CardView({ card, hidden }: { card: Card; hidden: boolean }) {
   const isRed = card.suit === '♥' || card.suit === '♦'
 
   return (
-    <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-[10px] flex flex-col justify-between p-2 font-bold select-none" style={{ backgroundColor: '#FFFFFF', border: '1px solid #19212A' }}>
-      <div className={`flex items-center justify-between text-xs sm:text-sm leading-none ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
+    <div
+      className="flex flex-col justify-between select-none shadow-lg"
+      style={{
+        ...cardStyle,
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #19212A',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.55)',
+        padding: '6px 5px',
+      }}
+    >
+      <div className={`flex items-center justify-between leading-none text-xs font-bold ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
         <span>{card.rank}</span>
         <span>{card.suit}</span>
       </div>
-      <div className={`text-center text-2xl sm:text-3xl ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
+      <div className={`text-center text-2xl leading-none my-auto ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
         {card.suit}
       </div>
-      <div className={`flex items-center justify-between text-xs sm:text-sm leading-none rotate-180 ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
+      <div className={`flex items-center justify-between leading-none text-xs font-bold rotate-180 ${isRed ? 'text-red-600' : 'text-gray-900'}`}>
         <span>{card.rank}</span>
         <span>{card.suit}</span>
       </div>
     </div>
   )
 }
+

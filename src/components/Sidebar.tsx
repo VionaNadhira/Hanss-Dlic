@@ -14,13 +14,16 @@ import {
   Crown, 
   ShieldCheck,
   Flame,
-  HelpCircle
+  HelpCircle,
+  TrendingUp,
+  Trophy
 } from 'lucide-react'
 
 export default function Sidebar() {
   const pathname = usePathname()
 
   const originals = [
+    { href: '/btcupdown', label: 'BTC Up or Down', icon: TrendingUp, hot: true },
     { href: '/dice', label: 'Dice', icon: LucideDices, hot: false },
     { href: '/mines', label: 'Mines', icon: Bomb, hot: true },
     { href: '/crash', label: 'Crash', icon: Rocket, hot: true },
@@ -70,13 +73,13 @@ export default function Sidebar() {
               <Flame size={12} className="text-gamdom-gold" /> Originals
             </span>
             <span className="text-[9px] font-bold text-gamdom-green bg-gamdom-green/10 border border-gamdom-green/20 px-1.5 py-0.2 rounded">
-              4 GAMES
+              5 GAMES
             </span>
           </div>
           <ul className="space-y-1">
             {originals.map((item) => {
               const Icon = item.icon
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href || (item.href === '/btcupdown' && pathname === '/play')
               return (
                 <li key={item.href}>
                   <Link
