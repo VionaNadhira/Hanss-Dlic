@@ -440,7 +440,7 @@ export default function FruitNinjaRealPage() {
             className={
               gameState === 'playing'
                 ? 'hidden sm:block pt-0 lg:pt-6'
-                : 'w-full col-start-2 row-start-1 self-end flex items-end lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6'
+                : 'hidden sm:block w-full col-start-2 row-start-1 self-end flex items-end lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6'
             }
           >
             {gameState !== 'playing' ? (
