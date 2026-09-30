@@ -6,6 +6,7 @@ export interface AuthUser {
   username: string
   balance: number
   history: unknown[]
+  avatarUrl?: string
 }
 
 interface AuthContextType {

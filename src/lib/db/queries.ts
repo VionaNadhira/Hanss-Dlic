@@ -15,6 +15,7 @@ export interface DbUser {
   lastFaucetAt?: Date | null
   createdAt: Date
   lastLoginAt?: Date | null
+  avatarUrl?: string | null
 }
 
 export interface ChatReplyTo {
@@ -54,10 +55,12 @@ export async function getUserByUsername(username: string): Promise<DbUser | null
     balance: Number(u.balance),
     score: u.score ?? 1000,
     streakDays: u.streakDays ?? 0,
+    avatarUrl: u.avatarUrl || 'https://xsgames.co/randomusers/avatar.php?g=pixel',
   }
 }
 
 export async function createUser(data: {
+  avatarUrl?: string
   username: string
   passwordHash: string
   salt: string
@@ -74,6 +77,7 @@ export async function createUser(data: {
       balance: startingBalance,
       score: 1000,
       streakDays: 0,
+      avatarUrl: data.avatarUrl || 'https://xsgames.co/randomusers/avatar.php?g=pixel',
       createdAt: new Date(),
       lastLoginAt: new Date(),
     })
@@ -85,6 +89,7 @@ export async function createUser(data: {
     balance: Number(u.balance),
     score: u.score ?? 1000,
     streakDays: u.streakDays ?? 0,
+    avatarUrl: u.avatarUrl || 'https://xsgames.co/randomusers/avatar.php?g=pixel',
   }
 }
 
@@ -215,16 +220,17 @@ export async function claimFaucetAtomic(
 
 export async function getLeaderboardUsers(limit = 50) {
   const res = await pool.query(
-    `SELECT username, balance, score, streak_days as "streakDays"
+     `SELECT username, balance, score, streak_days as "streakDays", COALESCE(avatar_url, 'https://xsgames.co/randomusers/avatar.php?g=pixel') as "avatarUrl"
      FROM users
-     ORDER BY balance DESC
-     LIMIT $1`,
+      ORDER BY balance DESC
+      LIMIT $1`,
     [limit]
   )
 
   return res.rows.map((r, index) => ({
     rank: index + 1,
     username: r.username,
+    avatarUrl: r.avatarUrl as string,
     balance: Number(r.balance),
     score: Number(r.score || Math.floor(Number(r.balance))),
     streakDays: Number(r.streakDays || 0),

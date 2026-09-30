@@ -94,9 +94,12 @@ export default function Header({
                 onClick={() => setProfileOpen((v) => !v)}
                 className="flex items-center gap-1.5 sm:gap-2 bg-gamdom-card border border-gamdom-border px-2 sm:px-2.5 py-1.5 min-h-[38px] sm:min-h-11 rounded-xl hover:border-gamdom-green/40 transition"
               >
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gamdom-green flex items-center justify-center font-black text-[11px] sm:text-xs text-gamdom-dark">
-                  {user.username[0].toUpperCase()}
-                </div>
+                <img
+                  src={user.avatarUrl || `https://xsgames.co/randomusers/avatar.php?g=pixel&seed=${encodeURIComponent(user.username)}`}
+                  alt={user.username}
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg object-cover shrink-0"
+                  onError={(e) => { const t = e.currentTarget as HTMLImageElement; t.onerror = null; t.src = `https://xsgames.co/randomusers/avatar.php?g=pixel&seed=${encodeURIComponent(user.username)}` }}
+                />
                 <div className="text-left hidden lg:block">
                   <div className="text-xs font-bold text-white leading-none">{user.username}</div>
                   <div className="text-[10px] text-gamdom-green font-bold">Logged In</div>
