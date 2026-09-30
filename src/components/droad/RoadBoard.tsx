@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React from 'react'
 import type { MascotState } from '@/lib/droad/game'
 import MascotAnimation from './MascotAnimation'
-import { MASCOT_ANCHOR, VEHICLE_SOURCES } from './mascotManifest'
+import { MASCOT_ANCHOR, MASCOT_CELL, VEHICLE_SOURCES } from './mascotManifest'
 
 export type Phase = 'waiting' | 'running' | 'knocked' | 'crossed'
 
@@ -16,39 +16,46 @@ interface RoadBoardProps {
   hitLane: number | null
   /** how many lanes are live this round, 1..5 */
   lanes: number
+  /** Status copy drawn over the road. It does not contribute to the road's height. */
+  children?: React.ReactNode
 }
 
-/** Road geometry, in CSS pixels. The road always reserves five lanes so the
- *  board never resizes when the lane count changes. */
-const LANE_H = 40
-const FAR_H = 76
-const NEAR_H = 56
+/**
+ * The road always reserves five lanes so the board never resizes when the
+ * lane count changes. Shoulders stay proportional to the road: the finish
+ * shoulder keeps the mascot on screen at the far kerb, and the start
+ * shoulder holds the mascot plus the instruction overlay.
+ *
+ * Percents of the road height. 10 + 14*5 + 20 = 100.
+ */
 const ROAD_LANES = 5
-const BOARD_H = FAR_H + ROAD_LANES * LANE_H + NEAR_H
+const FAR_PCT = 10
+const LANE_PCT = 14
+const NEAR_PCT = 20
 
-/** On-screen size of one sprite cell. The tallest state reaches 0.725 of the
- *  cell, and the mascot has to clear the far kerb by that much, so 116 keeps a
- *  ~84px character (just over two lanes) fully on screen at the finish line. */
-const CELL = 116
-/** Anchor offset: how far above the cell bottom the mascot's feet sit. */
-const ANCHOR_PX = MASCOT_ANCHOR.y * CELL
-
-const VEHICLE_H = 60
+/** Highest mascot pixel above the foot anchor, as a fraction of the cell. */
+const MASCOT_BODY = MASCOT_ANCHOR.y - 31 / MASCOT_CELL
+/** Cell scale that makes the mascot's body about 70% of a lane. */
+const MASCOT_LANE_SCALE = 0.7 / MASCOT_BODY
+/**
+ * Vehicle files are square with the car painted in roughly the middle half.
+ * 1.25 × the lane paints that car at about 65% of the lane without stretching.
+ */
+const VEHICLE_LANE_SCALE = 1.25
 
 const KERB = 'rgba(255,255,255,0.07)'
 const MUTED = 'rgba(154,167,180,0.7)'
 
-/** Ground line for a lane, counted from the far kerb down. Lane 0 is nearest. */
-function laneCenterY(lane: number): number {
-  return FAR_H + (ROAD_LANES - 0.5 - lane) * LANE_H
+/** Lane centre as a fraction of the road height. Lane 0 is nearest. */
+function laneCenterFrac(lane: number): number {
+  return (FAR_PCT + (ROAD_LANES - 0.5 - lane) * LANE_PCT) / 100
 }
 
-const START_Y = BOARD_H - NEAR_H / 2
-const FINISH_Y = FAR_H + LANE_H / 2
+const START_FRAC = (100 - NEAR_PCT / 2) / 100
+const FINISH_FRAC = laneCenterFrac(ROAD_LANES - 1)
 
 interface Lane {
   index: number
-  y: number
   vehicle: string
   offset: number
   speed: number
@@ -60,7 +67,6 @@ function buildLanes(): Lane[] {
     const r = ((i * 2654435761) % 997) / 997
     return {
       index: i,
-      y: laneCenterY(i),
       vehicle: VEHICLE_SOURCES[i % VEHICLE_SOURCES.length],
       offset: r,
       speed: (0.5 + ((i * 37) % 5) * 0.14) * (i % 2 === 0 ? -1 : 1),
@@ -72,8 +78,12 @@ function buildLanes(): Lane[] {
  *  partway into the lane, so a loss on the last lane is visibly short of the
  *  far kerb. */
 export function knockTravel(lane: number): number {
-  const y = laneCenterY(lane - 1) + LANE_H * 0.35
-  return (y - START_Y) / (FINISH_Y - START_Y)
+  const y = laneCenterFrac(lane - 1) + (LANE_PCT / 100) * 0.35
+  return (y - START_FRAC) / (FINISH_FRAC - START_FRAC)
+}
+
+function pct(fraction: number): string {
+  return `${fraction * 100}%`
 }
 
 export default function RoadBoard({
@@ -82,14 +92,15 @@ export default function RoadBoard({
   travel,
   hitLane,
   lanes,
+  children,
 }: RoadBoardProps) {
-  const all = useMemo(buildLanes, [])
-  const [scroll, setScroll] = useState(0)
+  const all = React.useMemo(buildLanes, [])
+  const [scroll, setScroll] = React.useState(0)
   const live = phase === 'running'
 
   // Traffic only moves while the round is live, at a fixed rate so the scene
   // reads identically on every device.
-  useEffect(() => {
+  React.useEffect(() => {
     if (!live) return
     let raf = 0
     let last = 0
@@ -111,52 +122,31 @@ export default function RoadBoard({
     return () => cancelAnimationFrame(raf)
   }, [live])
 
-  const groundY = START_Y + (FINISH_Y - START_Y) * travel
+  const groundFrac = START_FRAC + (FINISH_FRAC - START_FRAC) * travel
   const down = phase === 'knocked'
 
   return (
     <div
-      className="relative w-full overflow-hidden select-none"
+      className="road-game absolute inset-0 h-full w-full overflow-hidden select-none"
       style={{
-        height: BOARD_H,
-        background: 'linear-gradient(180deg, #16202e 0%, #1d2836 100%)',
-        borderBottom: `1px solid ${KERB}`,
+        ['--lane-height' as string]: `${LANE_PCT}cqh`,
+        containerType: 'size',
       }}
     >
-      {/* horizon glow above the far kerb */}
       <div
-        className="absolute inset-x-0"
+        className="road-background pointer-events-none absolute inset-0"
         style={{
-          top: 0,
-          height: FAR_H,
-          background:
-            'radial-gradient(120% 130% at 50% 100%, rgba(59,184,242,0.20) 0%, rgba(8,13,19,0) 72%)',
+          backgroundImage: `url('/droad/droad.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       />
 
-      {/* kerbs */}
-      {[FAR_H, FAR_H + ROAD_LANES * LANE_H].map((y) => (
-        <div
-          key={y}
-          className="absolute inset-x-0"
-          style={{ top: y, height: 2, background: KERB }}
-        />
-      ))}
-
-      {/* live lanes only; the rest stays plain asphalt */}
-      {all.slice(0, lanes).map((lane) => (
-        <div
-          key={lane.index}
-          className="absolute inset-x-0"
-          style={{ top: lane.y - LANE_H / 2, height: 2, background: KERB }}
-        />
-      ))}
-
-      {/* scrolling centre line, on the far kerb */}
+      {/* finish shoulder marker, aligned to the road */}
       <div
-        className="absolute inset-x-0"
+        className="pointer-events-none absolute inset-x-0"
         style={{
-          top: FAR_H - 5,
+          top: pct(FAR_PCT / 100),
           height: 4,
           opacity: live ? 0.65 : 0.25,
           backgroundImage:
@@ -165,66 +155,87 @@ export default function RoadBoard({
         }}
       />
 
-{/* traffic — hit lane vehicle is forced to converge on mascot at collision, never random miss */}
-       {all.slice(0, lanes).map((lane) => {
-         // Continuous movement with wrapping
-         const span = 108;
-         // Position moves continuously based on speed and scroll
-         let position = (lane.offset * span + scroll * lane.speed) % span;
-         // Ensure positive position (JavaScript % can be negative)
-         position = ((position % span) + span) % span;
-         let naturalX = position; // 0 to span
-         
-         const isHitLane = hitLane !== null && lane.index + 1 === hitLane
-         const hitTravel = hitLane !== null ? knockTravel(hitLane) : 1
-         let x = naturalX
-         if (lanes > 0) {
-           if (phase === 'running' && isHitLane && hitTravel > 0.001) {
-             const progress = Math.max(0, Math.min(1, travel / hitTravel))
-             if (progress > 0.62) {
-               const lerp = Math.min(1, (progress - 0.62) / 0.38)
-               const eased = 1 - Math.pow(1 - lerp, 3)
-               x = naturalX * (1 - eased) + 50 * eased
-             }
-           } else if ((phase === 'knocked' || phase === 'crossed') && isHitLane) {
-             x = 50
-           }
-         }
-         const struck = down && isHitLane
-         return (
-           <img
-             key={lane.index}
-             src={lane.vehicle}
-             alt=""
-             aria-hidden
-             className="absolute object-contain"
-             style={{
-               top: lane.y - VEHICLE_H / 2,
-               left: `${x}%`,
-               // Reduced width multiplier since we increased VEHICLE_H
-               width: VEHICLE_H * 1.2,
-               height: VEHICLE_H,
-               marginLeft: -(VEHICLE_H * 1.2) / 2,
-               // Transform based on speed direction for proper facing
-               transform: `scaleX(${lane.speed < 0 ? -1 : 1})`,
-               opacity: down && !struck ? 0.7 : 1,
-               filter: struck
-                 ? 'drop-shadow(0 0 12px rgba(255,77,79,0.85))'
-                 : 'drop-shadow(0 5px 9px rgba(0,0,0,0.55))',
-             }}
-           />
-         )
-       })}
+      {/* kerbs at the edges of the lane band */}
+      {[FAR_PCT, FAR_PCT + ROAD_LANES * LANE_PCT].map((top) => (
+        <div
+          key={top}
+          className="pointer-events-none absolute inset-x-0"
+          style={{ top: `${top}%`, height: 2, background: KERB }}
+        />
+      ))}
 
-      {/* mascot: feet on the travel line, drawn in front of the traffic */}
+      {all.map((lane) => {
+        const active = lane.index < lanes
+        const top = FAR_PCT + (ROAD_LANES - 1 - lane.index) * LANE_PCT
+        const span = 108
+        let position = (lane.offset * span + scroll * lane.speed) % span
+        position = ((position % span) + span) % span
+        const naturalX = position
+        const isHitLane = hitLane !== null && lane.index + 1 === hitLane
+        const hitTravel = hitLane !== null ? knockTravel(hitLane) : 1
+        let x = naturalX
+        if (lanes > 0) {
+          if (phase === 'running' && isHitLane && hitTravel > 0.001) {
+            const progress = Math.max(0, Math.min(1, travel / hitTravel))
+            if (progress > 0.62) {
+              const lerp = Math.min(1, (progress - 0.62) / 0.38)
+              const eased = 1 - Math.pow(1 - lerp, 3)
+              x = naturalX * (1 - eased) + 50 * eased
+            }
+          } else if ((phase === 'knocked' || phase === 'crossed') && isHitLane) {
+            x = 50
+          }
+        }
+        const struck = down && isHitLane
+        const facing = lane.speed < 0 ? -1 : 1
+        return (
+          <div
+            key={lane.index}
+            className="pointer-events-none absolute inset-x-0"
+            style={{ top: `${top}%`, height: `${LANE_PCT}%` }}
+          >
+            {active && (
+              <div
+                className="absolute inset-x-0 top-0"
+                style={{ height: 2, background: KERB }}
+              />
+            )}
+            {active && (
+              <img
+                src={lane.vehicle}
+                alt=""
+                aria-hidden
+                draggable={false}
+                className="absolute object-contain"
+                style={{
+                  height: `calc(var(--lane-height) * ${VEHICLE_LANE_SCALE})`,
+                  width: 'auto',
+                  
+                  maxWidth: 'none',
+                  top: '50%',
+                  left: `${x}%`,
+                  transform: `translate(-50%, -50%) scaleX(${facing})`,
+                  opacity: down && !struck ? 0.7 : 1,
+                  filter: struck
+                    ? 'drop-shadow(0 0 12px rgba(255,77,79,0.85))'
+                    : 'drop-shadow(0 5px 9px rgba(0,0,0,0.55))',
+                }}
+              />
+            )}
+          </div>
+        )
+      })}
+
+      {/* mascot: feet on the travel line, body fitted to one lane */}
       <div
-        className="absolute"
+        className="pointer-events-none absolute"
         style={{
-          top: groundY,
+          top: pct(groundFrac),
           left: '50%',
-          width: CELL,
-          height: CELL,
-          transform: `translate(-50%, -${ANCHOR_PX}px)`,
+          height: `calc(var(--lane-height) * ${MASCOT_LANE_SCALE})`,
+          width: 'auto',
+          transform: `translate(-50%, -${MASCOT_ANCHOR.y * 100}%)`,
+          zIndex: 4,
           opacity: down ? 0.94 : 1,
           filter: down
             ? 'grayscale(0.4) brightness(0.75) drop-shadow(0 6px 8px rgba(0,0,0,0.6))'
@@ -233,29 +244,47 @@ export default function RoadBoard({
       >
         <MascotAnimation
           state={mascotState}
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: 'auto', height: '100%' }}
         />
       </div>
 
-      {/* kerb labels */}
-      {[
-        { text: 'Start', top: START_Y - 34, align: 'left' as const },
-        { text: 'Finish', top: FINISH_Y - 30, align: 'right' as const },
-      ].map(({ text, top, align }) => (
+      <div
+        className="pointer-events-none absolute font-bold uppercase"
+        style={{
+          top: pct(laneCenterFrac(0)),
+          left: 12,
+          transform: 'translateY(-50%)',
+          zIndex: 5,
+          fontSize: 'clamp(9px, 2.2cqh, 12px)',
+          letterSpacing: 1,
+          color: MUTED,
+        }}
+      >
+        Start
+      </div>
+      <div
+        className="pointer-events-none absolute font-bold uppercase"
+        style={{
+          top: pct(FAR_PCT / 200),
+          right: 12,
+          transform: 'translateY(-50%)',
+          zIndex: 5,
+          fontSize: 'clamp(9px, 2.2cqh, 12px)',
+          letterSpacing: 1,
+          color: MUTED,
+        }}
+      >
+        Finish
+      </div>
+
+      {children != null && (
         <div
-          key={text}
-          className="absolute font-bold uppercase"
-          style={{
-            top,
-            [align]: 12,
-            fontSize: 10,
-            letterSpacing: 1,
-            color: MUTED,
-          }}
+          className="road-instruction pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-3 text-center"
+          style={{ bottom: 'clamp(10px, 2.6cqh, 28px)', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
         >
-          {text}
+          {children}
         </div>
-      ))}
+      )}
     </div>
   )
 }

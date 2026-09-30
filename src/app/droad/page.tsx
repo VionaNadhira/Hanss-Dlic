@@ -8,7 +8,7 @@ import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
 import { LANE_OPTIONS, MAX_BET, MIN_BET, SURVIVE_P, multiplierFor, newRoundSeed, payoutFor, resolveFromSeed, round2, type MascotState, type RunOutcome } from '@/lib/droad/game'
 import { DlicomRoadAudioProvider, useDroadAudioOptional } from '@/components/droad/DlicomRoadAudioProvider'
-import { Car, Check, Skull, Trophy, Volume2, VolumeX } from 'lucide-react'
+import { Car, Check, Skull, Trophy } from 'lucide-react'
 const CARD_BG = '#10151c'
 const CARD_BORDER = '#19212a'
 const INPUT_BG = '#141a22'
@@ -237,31 +237,8 @@ function DroadInner() {
         <div className="flex-1">
           <h1 className="text-xl sm:text-2xl font-bold uppercase" style={{ color: '#fff', lineHeight: '29px' }}>Dlicom Road</h1>
           <p className="text-sm" style={{ color: MUTED }}>Send the mascot across {lanes === 1 ? '1 lane' : `${lanes} lanes`} of traffic. Clear every lane or get knocked down.</p>
-          {audio && (
-            <div className="mt-2">
-              <button onClick={() => {
-                  console.log('[Test Sound] Button clicked');
-                  void audio?.unlock();
-                  audio?.playSfx('bet');
-              }} className="px-3 py-1 rounded text-sm font-bold" style={{ backgroundColor: CARD_BG, border: `1px solid ${CARD_BORDER}`, color: ACCENT }}>
-                Test Sound
-              </button>
-            </div>
-          )}
+
         </div>
-        {audio && (
-          <div className="hidden sm:flex items-center gap-2 shrink-0">
-            <button onClick={audio.toggleMute} onMouseEnter={() => audio.playSfx('button-hover')} className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: CARD_BG, border: `1px solid ${CARD_BORDER}`, color: audio.muted ? DANGER : MUTED }} aria-label="mute">
-              {audio.muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            </button>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded" style={{ backgroundColor: CARD_BG, border: `1px solid ${CARD_BORDER}` }}>
-              <span className="text-[10px] font-bold" style={{ color: MUTED }}>SFX</span>
-              <input type="range" min={0} max={100} value={Math.round(audio.sfx * 100)} onChange={(e) => audio.setSfx(Number(e.target.value) / 100)} className="w-14 accent-[#3bb8f2]" />
-              <span className="text-[10px] font-bold" style={{ color: MUTED }}>BGM</span>
-              <input type="range" min={0} max={100} value={Math.round(audio.bgm * 100)} onChange={(e) => audio.setBgmVol(Number(e.target.value) / 100)} className="w-14 accent-[#3bb8f2]" />
-            </div>
-          </div>
-        )}
       </div>
       <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: INK, border: `1px solid ${CARD_BORDER}` }}>
         <div className="w-full lg:w-80 p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_132px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: CARD_BG }}>
@@ -311,23 +288,16 @@ function DroadInner() {
               <Button onClick={handlePlay} onMouseEnter={() => audio?.playSfx('button-hover')} className="w-full h-12 lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]" style={{ borderRadius: 8, backgroundColor: ACCENT, color: INK, fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59,184,242,0.45)', border: `1px solid ${ACCENT}` }}>CROSS THE ROAD</Button>
             )}
           </div>
-          {audio && (
-            <div className="flex sm:hidden items-center gap-2 mt-3 lg:hidden">
-              <button onClick={audio.toggleMute} className="px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1" style={{ backgroundColor: INPUT_BG, border: `1px solid ${CARD_BORDER}`, color: audio.muted ? DANGER : ACCENT }}>{audio.muted ? <VolumeX size={14} /> : <Volume2 size={14} />}{audio.muted ? 'Muted' : 'Sound'}</button>
-              <span className="text-[10px]" style={{ color: MUTED }}>{audio.muted ? 'tap to unmute' : `${Math.round(audio.master * 100)}%`}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex-1 flex flex-col order-1 lg:order-2" style={{ backgroundColor: INK }}>
-          <RoadBoard mascotState={mascotState} phase={phase} travel={travel} hitLane={outcome && !outcome.won ? outcome.hitLane : null} lanes={lanes} />
-          <div className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center gap-3 min-h-[150px]" style={{ backgroundColor: INK }}>
-            {phase === 'waiting' && <p className="text-xs text-center" style={{ color: MUTED }}>Pick your bet and lanes, then send the mascot across.</p>}
-            {phase === 'running' && <p className="text-xs font-bold uppercase" style={{ color: GOLD }}>Crossing {lanes} lanes...</p>}
-            {phase === 'crossed' && <div className="px-5 py-2 font-bold text-xs uppercase flex items-center gap-2" style={{ backgroundColor: 'rgba(56,185,242,0.15)', border: `1px solid ${ACCENT}`, borderRadius: 4, color: ACCENT }}><Trophy size={16} /> Cleared all {lanes} lanes {payout > 0 && <> &middot; +${net.toFixed(2)}</>}</div>}
-            {phase === 'knocked' && <div className="px-5 py-2 font-bold text-xs uppercase flex items-center gap-2" style={{ backgroundColor: 'rgba(255,77,79,0.15)', border: `1px solid ${DANGER}`, borderRadius: 4, color: DANGER }}><Skull size={16} /> Knocked down on lane {outcome?.hitLane}</div>}
-            {phase !== 'waiting' && seed && <p style={{ fontSize: 11, color: 'rgba(154,167,180,0.6)' }}>round {seed}</p>}
-            {phase === 'crossed' && <p className="text-xs flex items-center gap-1" style={{ color: MUTED }}><Check size={12} style={{ color: ACCENT }} /> Payout ${payout.toFixed(2)}</p>}
           </div>
+        <div className="relative order-1 w-full min-h-[482px] flex-1 lg:order-2 lg:w-auto lg:min-w-0" style={{ backgroundColor: INK }}>
+          <RoadBoard mascotState={mascotState} phase={phase} travel={travel} hitLane={outcome && !outcome.won ? outcome.hitLane : null} lanes={lanes}>
+            {phase === 'waiting' && <p className="text-[11px] leading-snug sm:text-xs" style={{ color: MUTED, textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(8,13,19,0.95)' }}>Pick your bet and lanes, then send the mascot across.</p>}
+            {phase === 'running' && <p className="text-[11px] font-bold uppercase sm:text-xs" style={{ color: GOLD, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>Crossing {lanes} lanes...</p>}
+            {phase === 'crossed' && <div className="max-w-full flex-wrap justify-center px-3 py-1.5 font-bold text-[11px] uppercase flex items-center gap-2 sm:px-5 sm:py-2 sm:text-xs" style={{ backgroundColor: 'rgba(56,185,242,0.15)', border: `1px solid ${ACCENT}`, borderRadius: 4, color: ACCENT }}><Trophy size={16} /> Cleared all {lanes} lanes {payout > 0 && <> &middot; +${net.toFixed(2)}</>}</div>}
+            {phase === 'knocked' && <div className="max-w-full flex-wrap justify-center px-3 py-1.5 font-bold text-[11px] uppercase flex items-center gap-2 sm:px-5 sm:py-2 sm:text-xs" style={{ backgroundColor: 'rgba(255,77,79,0.15)', border: `1px solid ${DANGER}`, borderRadius: 4, color: DANGER }}><Skull size={16} /> Knocked down on lane {outcome?.hitLane}</div>}
+            {phase !== 'waiting' && seed && <p style={{ fontSize: 11, color: 'rgba(154,167,180,0.85)', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>round {seed}</p>}
+            {phase === 'crossed' && <p className="text-[11px] flex items-center gap-1 sm:text-xs" style={{ color: MUTED, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}><Check size={12} style={{ color: ACCENT }} /> Payout ${payout.toFixed(2)}</p>}
+          </RoadBoard>
         </div>
       </div>
       <AuthGuardModal isOpen={!loading && !user} />
