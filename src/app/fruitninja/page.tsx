@@ -377,7 +377,7 @@ export default function FruitNinjaRealPage() {
                 </div>
               </div>
               {/* Desktop: preserve original layout */}
-              <div className="sm:block">
+              <div className="hidden sm:block">
                 <div className="space-y-5">
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -439,7 +439,7 @@ export default function FruitNinjaRealPage() {
           <div
             className={
               gameState === 'playing'
-                ? 'col-span-2 pt-0 lg:pt-6'
+                ? 'hidden sm:block pt-0 lg:pt-6'
                 : 'w-full col-start-2 row-start-1 self-end flex items-end lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6'
             }
           >

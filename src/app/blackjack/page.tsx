@@ -514,7 +514,7 @@ export default function BlackjackPage() {
               </div>
             </div>
             {/* Desktop: preserve original layout */}
-            <div className="sm:block">
+            <div className="hidden sm:block">
               <div className="space-y-5">
                 {/* Bet Amount */}
                 <div>

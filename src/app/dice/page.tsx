@@ -215,7 +215,7 @@ export default function DicePage() {
                 </div>
               </div>
               {/* Desktop: preserve original layout */}
-              <div className="sm:block">
+              <div className="hidden sm:block">
                 <div className="space-y-4">
                   {/* Bet Amount */}
                   <div>
