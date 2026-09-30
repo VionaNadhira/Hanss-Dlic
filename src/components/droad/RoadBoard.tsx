@@ -136,7 +136,7 @@ export default function RoadBoard({
       <div
         className="road-background pointer-events-none absolute inset-0"
         style={{
-          backgroundImage: `url('/droad/droad.png')`,
+          background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -233,7 +233,7 @@ export default function RoadBoard({
           top: pct(groundFrac),
           left: '50%',
           height: `calc(var(--lane-height) * ${MASCOT_LANE_SCALE})`,
-          width: 'auto',
+          width: `calc(var(--lane-height) * ${MASCOT_LANE_SCALE})`,
           transform: `translate(-50%, -${MASCOT_ANCHOR.y * 100}%)`,
           zIndex: 4,
           opacity: down ? 0.94 : 1,
@@ -244,7 +244,7 @@ export default function RoadBoard({
       >
         <MascotAnimation
           state={mascotState}
-          style={{ width: 'auto', height: '100%' }}
+          style={{ width: '100%', height: '100%' }}
         />
       </div>
 
