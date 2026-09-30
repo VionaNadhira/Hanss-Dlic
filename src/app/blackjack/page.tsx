@@ -358,158 +358,316 @@ export default function BlackjackPage() {
       {/* Gamdom Theater Container — Gamdom Design System v:alpha #080D13 / #0F151B / #38B9F2 */}
       <div className="bg-[#0F151B] rounded-[10px] overflow-hidden border border-[#19212A] flex flex-col lg:flex-row" style={{ boxShadow: 'none' }}>
         {/* Controls Column */}
-        <div className="w-full lg:w-80 p-4 sm:p-6 bg-[#080D13] border-b lg:border-b-0 lg:border-r border-[#19212A] grid grid-cols-[minmax(0,1fr)_140px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1">
-          <div className="space-y-5">
-            {/* Bet Amount */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1.2px' }}>
-                  Bet Amount
-                </label>
-                <span className="text-xs" style={{ color: '#818E9D' }}>Balance: <span className="font-bold" style={{ color: '#38B9F2' }}>${balance.toFixed(2)}</span></span>
-              </div>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#38B9F2' }}>$</span>
-                <input
-                  type="number"
-                  step="1"
-                  min="1"
-                  disabled={gameState !== 'betting'}
-                  value={bet}
-                  onChange={(e) => setBet(Math.max(1, Number(e.target.value)))}
-                  className="w-full rounded-none py-2.5 pl-8 pr-3 font-medium text-sm transition disabled:opacity-50"
-                  style={{ backgroundColor: '#0F151B', border: '1px solid #19212A', color: '#FFFFFF' }}
-                />
-              </div>
-
-              {/* Chip selectors */}
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
-                {chips.map((c) => (
-                  <button
-                    key={c}
-                    disabled={gameState !== 'betting'}
-                    onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
-                    className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20 hover:border-[#3bb8f2]"
-                    style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
-                  >
-                    +${c}
-                  </button>
-                ))}
-              </div>
-
-              {/* Quick Shortcuts */}
-              <div className="grid grid-cols-3 gap-1.5 mt-2">
-                <button
-                  disabled={gameState !== 'betting'}
-                  onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))}
-                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
-                  style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
-                >
-                  ½
-                </button>
-                <button
-                  disabled={gameState !== 'betting'}
-                  onClick={() => setBet((prev) => +(prev * 2).toFixed(2))}
-                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
-                  style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
-                >
-                  2×
-                </button>
-                <button
-                  disabled={gameState !== 'betting'}
-                  onClick={() => setBet(10.00)}
-                  className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
-                  style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
-                >
-                  RESET
-                </button>
-              </div>
-            </div>
-
-            {/* Stats Panel */}
-            <div className="rounded-[8px] p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#0F151B', border: '1px solid #19212A' }}>
-              <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
-                <span className="font-medium">Current Hand Bet</span>
-                <span className="font-bold" style={{ color: '#3bb8f2' }}>${bet.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
-                <span className="font-medium">Player Hand Total</span>
-                <span className="font-bold" style={{ color: '#FFFFFF' }}>
-                  {playerHand.length > 0 ? playerScore : '-'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
-                <span className="font-medium">Dealer Hand Total</span>
-                <span className="font-bold" style={{ color: '#FFFFFF' }}>
-                  {dealerHand.length > 0 ? dealerScore : '-'}
-                </span>
-              </div>
-            </div>
-
+        <div className="w-full lg:w-80 p-4 sm:p-6 bg-[#080D13] border-b lg:border-b-0 lg:border-r border-[#19212A] flex flex-col justify-between shrink-0 order-2 lg:order-1">
+          <div className="flex flex-col gap-4 w-full">
+            {/* Error message - full width */}
             {errorMessage && (
               <div className="text-xs font-bold p-2.5 rounded-[8px] text-center" style={{ color: '#DB585D', backgroundColor: 'rgba(219,88,93,0.12)', border: '1px solid #DB585D' }}>
                 {errorMessage}
               </div>
             )}
-          </div>
+            {/* Mobile: 2-col grid for controls and info, then button */}
+            <div className="sm:hidden">
+              <div className="grid grid-cols-2 gap-3">
+                {/* Left column: controls */}
+                <div className="flex flex-col gap-2">
+                  {/* Bet Amount */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1.2px' }}>
+                        Bet Amount
+                      </label>
+                      <span className="text-xs" style={{ color: '#818E9D' }}>Balance: <span className="font-bold" style={{ color: '#38B9F2' }}>${balance.toFixed(2)}</span></span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#38B9F2' }}>$</span>
+                      <input
+                        type="number"
+                        step="1"
+                        min="1"
+                        disabled={gameState !== 'betting'}
+                        value={bet}
+                        onChange={(e) => setBet(Math.max(1, Number(e.target.value)))}
+                        className="w-full rounded-none py-2.5 pl-8 pr-3 font-medium text-sm transition disabled:opacity-50"
+                        style={{ backgroundColor: '#0F151B', border: '1px solid #19212A', color: '#FFFFFF' }}
+                      />
+                    </div>
 
-          {/* Action Buttons */}
-          <div
-            className={
-              gameState === 'playing'
-                ? 'col-span-2 space-y-0 pt-0 lg:space-y-2 lg:pt-6'
-                : 'w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6 lg:space-y-2'
-            }
-          >
-            {gameState === 'betting' && (
-              <Button
-                onClick={handleDeal}
-                className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all hover:brightness-110 active:scale-[0.96]"
-                style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
-              >
-                DEAL HAND
-              </Button>
-            )}
+                    {/* Chip selectors */}
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
+                      {chips.map((c) => (
+                        <button
+                          key={c}
+                          disabled={gameState !== 'betting'}
+                          onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
+                          className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20 hover:border-[#3bb8f2]"
+                          style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                        >
+                          +${c}
+                        </button>
+                      ))}
+                    </div>
 
-            {gameState === 'playing' && (
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleHit}
-                    className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                    {/* Quick Shortcuts */}
+                    <div className="grid grid-cols-3 gap-1.5 mt-2">
+                      <button
+                        disabled={gameState !== 'betting'}
+                        onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))}
+                        className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                        style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                      >
+                        ½
+                      </button>
+                      <button
+                        disabled={gameState !== 'betting'}
+                        onClick={() => setBet((prev) => +(prev * 2).toFixed(2))}
+                        className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                        style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                      >
+                        2×
+                      </button>
+                      <button
+                        disabled={gameState !== 'betting'}
+                        onClick={() => setBet(10.00)}
+                        className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                        style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                      >
+                        RESET
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {/* Right column: info */}
+                <div className="flex flex-col gap-2">
+                  {/* Stats Panel */}
+                  <div className="rounded-[8px] p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#0F151B', border: '1px solid #19212A' }}>
+                    <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
+                      <span className="font-medium">Current Hand Bet</span>
+                      <span className="font-bold" style={{ color: '#3bb8f2' }}>${bet.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
+                      <span className="font-medium">Player Hand Total</span>
+                      <span className="font-bold" style={{ color: '#FFFFFF' }}>
+                        {playerHand.length > 0 ? playerScore : '-'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
+                      <span className="font-medium">Dealer Hand Total</span>
+                      <span className="font-bold" style={{ color: '#FFFFFF' }}>
+                        {dealerHand.length > 0 ? dealerScore : '-'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Buttons full width */}
+              <div className="mt-4">
+                {gameState === 'betting' && (
+                  <Button
+                    onClick={handleDeal}
+                    className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all hover:brightness-110 active:scale-[0.96]"
                     style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
                   >
-                    HIT
-                  </button>
-                  <button
-                    onClick={handleStand}
-                    className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/10 active:scale-[0.96]"
-                    style={{ backgroundColor: '#131A22', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
+                    DEAL HAND
+                  </Button>
+                )}
+
+                {gameState === 'playing' && (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={handleHit}
+                        className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                        style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
+                      >
+                        HIT
+                      </button>
+                      <button
+                        onClick={handleStand}
+                        className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/10 active:scale-[0.96]"
+                        style={{ backgroundColor: '#131A22', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
+                      >
+                        STAND
+                      </button>
+                    </div>
+                    {playerHand.length === 2 && balance >= bet && (
+                      <button
+                        onClick={handleDoubleDown}
+                        className="w-full h-10 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/20 active:scale-[0.96]"
+                        style={{ backgroundColor: 'rgba(59, 184, 242, 0.12)', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
+                      >
+                        DOUBLE DOWN (+${bet.toFixed(2)})
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {gameState === 'resolved' && (
+                  <Button
+                    onClick={handleNewRound}
+                    className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.96]"
+                    style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
                   >
-                    STAND
-                  </button>
-                </div>
-                {playerHand.length === 2 && balance >= bet && (
-                  <button
-                    onClick={handleDoubleDown}
-                    className="w-full h-10 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/20 active:scale-[0.96]"
-                    style={{ backgroundColor: 'rgba(59, 184, 242, 0.12)', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
-                  >
-                    DOUBLE DOWN (+${bet.toFixed(2)})
-                  </button>
+                    <RefreshCw size={17} /> PLAY AGAIN
+                  </Button>
                 )}
               </div>
-            )}
+            </div>
+            {/* Desktop: preserve original layout */}
+            <div className="sm:block">
+              <div className="space-y-5">
+                {/* Bet Amount */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase" style={{ color: '#818E9D', fontFamily: "'Luckiest Guy', serif", letterSpacing: '1.2px' }}>
+                      Bet Amount
+                    </label>
+                    <span className="text-xs" style={{ color: '#818E9D' }}>Balance: <span className="font-bold" style={{ color: '#38B9F2' }}>${balance.toFixed(2)}</span></span>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#38B9F2' }}>$</span>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1"
+                      disabled={gameState !== 'betting'}
+                      value={bet}
+                      onChange={(e) => setBet(Math.max(1, Number(e.target.value)))}
+                      className="w-full rounded-none py-2.5 pl-8 pr-3 font-medium text-sm transition disabled:opacity-50"
+                      style={{ backgroundColor: '#0F151B', border: '1px solid #19212A', color: '#FFFFFF' }}
+                    />
+                  </div>
 
-            {gameState === 'resolved' && (
-              <Button
-                onClick={handleNewRound}
-                className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.96]"
-                style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
+                  {/* Chip selectors */}
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
+                    {chips.map((c) => (
+                      <button
+                        key={c}
+                        disabled={gameState !== 'betting'}
+                        onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
+                        className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20 hover:border-[#3bb8f2]"
+                        style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                      >
+                        +${c}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Quick Shortcuts */}
+                  <div className="grid grid-cols-3 gap-1.5 mt-2">
+                    <button
+                      disabled={gameState !== 'betting'}
+                      onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))}
+                      className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                      style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                    >
+                      ½
+                    </button>
+                    <button
+                      disabled={gameState !== 'betting'}
+                      onClick={() => setBet((prev) => +(prev * 2).toFixed(2))}
+                      className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                      style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                    >
+                      2×
+                    </button>
+                    <button
+                      disabled={gameState !== 'betting'}
+                      onClick={() => setBet(10.00)}
+                      className="text-xs font-bold py-1.5 rounded-[8px] transition disabled:opacity-40 hover:bg-[#3bb8f2]/20"
+                      style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', color: '#3bb8f2', border: '1px solid rgba(59, 184, 242, 0.3)' }}
+                    >
+                      RESET
+                    </button>
+                  </div>
+                </div>
+
+                {/* Stats Panel */}
+                <div className="rounded-[8px] p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#0F151B', border: '1px solid #19212A' }}>
+                  <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
+                    <span className="font-medium">Current Hand Bet</span>
+                    <span className="font-bold" style={{ color: '#3bb8f2' }}>${bet.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
+                    <span className="font-medium">Player Hand Total</span>
+                    <span className="font-bold" style={{ color: '#FFFFFF' }}>
+                      {playerHand.length > 0 ? playerScore : '-'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center" style={{ color: '#818E9D' }}>
+                    <span className="font-medium">Dealer Hand Total</span>
+                    <span className="font-bold" style={{ color: '#FFFFFF' }}>
+                      {dealerHand.length > 0 ? dealerScore : '-'}
+                    </span>
+                  </div>
+                </div>
+
+                {errorMessage && (
+                  <div className="text-xs font-bold p-2.5 rounded-[8px] text-center" style={{ color: '#DB585D', backgroundColor: 'rgba(219,88,93,0.12)', border: '1px solid #DB585D' }}>
+                    {errorMessage}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div
+                className={
+                  gameState === 'playing'
+                    ? 'col-span-2 space-y-0 pt-0 lg:space-y-2 lg:pt-6'
+                    : 'w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block lg:pt-6 lg:space-y-2'
+                }
               >
-                <RefreshCw size={17} /> PLAY AGAIN
-              </Button>
-            )}
+                {gameState === 'betting' && (
+                  <Button
+                    onClick={handleDeal}
+                    className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                    style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
+                  >
+                    DEAL HAND
+                  </Button>
+                )}
+
+                {gameState === 'playing' && (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={handleHit}
+                        className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:brightness-110 active:scale-[0.96]"
+                        style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
+                      >
+                        HIT
+                      </button>
+                      <button
+                        onClick={handleStand}
+                        className="h-11 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/10 active:scale-[0.96]"
+                        style={{ backgroundColor: '#131A22', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
+                      >
+                        STAND
+                      </button>
+                    </div>
+                    {playerHand.length === 2 && balance >= bet && (
+                      <button
+                        onClick={handleDoubleDown}
+                        className="w-full h-10 font-bold rounded-[10px] text-xs uppercase transition-all hover:bg-[#3bb8f2]/20 active:scale-[0.96]"
+                        style={{ backgroundColor: 'rgba(59, 184, 242, 0.12)', color: '#3bb8f2', border: '1px solid #3bb8f2', fontFamily: "'Luckiest Guy', serif" }}
+                      >
+                        DOUBLE DOWN (+${bet.toFixed(2)})
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {gameState === 'resolved' && (
+                  <Button
+                    onClick={handleNewRound}
+                    className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.96]"
+                    style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
+                  >
+                    <RefreshCw size={17} /> PLAY AGAIN
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

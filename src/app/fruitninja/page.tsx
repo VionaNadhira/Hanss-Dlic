@@ -297,61 +297,144 @@ export default function FruitNinjaRealPage() {
       </div>
 
       <div className="bg-gamdom-card rounded-3xl overflow-hidden border border-gamdom-border flex flex-col lg:flex-row shadow-gamdom-card">
-        <div className="w-full lg:w-80 p-4 sm:p-6 bg-gamdom-dark border-b lg:border-b-0 lg:border-r border-gamdom-border grid grid-cols-[minmax(0,1fr)_140px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1">
-            <div className="space-y-5">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-black text-gamdom-text uppercase tracking-wider">
-                  Bet Amount
-                </label>
-                <span className="text-[11px] text-gamdom-text">Balance: <span className="text-white font-bold">${balance.toFixed(2)}</span></span>
+        <div className="w-full lg:w-80 p-4 sm:p-6 bg-gamdom-dark border-b lg:border-b-0 lg:border-r border-gamdom-border flex flex-col justify-between shrink-0 order-2 lg:order-1">
+            <div className="flex flex-col gap-4 w-full">
+              {/* Error message - full width */}
+              {errorMessage && (
+                <div className="text-xs text-gamdom-red bg-gamdom-red/10 border border-gamdom-red/30 p-2.5 rounded-xl text-center font-bold">
+                  {errorMessage}
+                </div>
+              )}
+              {/* Mobile: grid for controls and info (if playing), then button */}
+              <div className="sm:hidden">
+                <div className={gameState === 'playing' ? 'grid grid-cols-2 gap-3' : 'grid grid-cols-1 gap-3'}>
+                  {/* Left column: controls */}
+                  <div className="flex flex-col gap-2">
+                    {/* Bet Amount */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-[11px] font-black text-gamdom-text uppercase tracking-wider">
+                          Bet Amount
+                        </label>
+                        <span className="text-[11px] text-gamdom-text">Balance: <span className="text-white font-bold">${balance.toFixed(2)}</span></span>
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gamdom-gold font-black text-sm">$</span>
+                        <input
+                          type="number"
+                          step="1"
+                          min="1"
+                          disabled={gameState === 'playing'}
+                          value={bet}
+                          onChange={(e) => setBet(Math.max(1, Number(e.target.value)))}
+                          className="w-full bg-gamdom-input border border-gamdom-border rounded-xl py-2.5 pl-8 pr-3 text-white font-bold text-sm focus:outline-none focus:border-gamdom-green transition disabled:opacity-50 shadow-inner"
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
+                        {[1, 5, 25, 50, 100].map((c) => (
+                          <button
+                            key={c}
+                            disabled={gameState === 'playing'}
+                            onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
+                            className="bg-gamdom-card hover:bg-gamdom-cardHover border border-gamdom-border text-xs font-black py-1.5 rounded-lg text-[#3bb8f2] hover:border-[#3bb8f2]/60 hover:bg-[#3bb8f2]/10 transition disabled:opacity-40"
+                          >
+                            +${c}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Right column: info (only when playing) */}
+                  {gameState === 'playing' && (
+                    <div className="flex flex-col gap-2">
+                      <div className="bg-gamdom-input/80 border border-gamdom-border rounded-xl p-3.5 space-y-2 text-xs shadow-inner">
+                        <div className="flex justify-between items-center text-gamdom-text">
+                          <span className="font-medium">Fruits Sliced</span>
+                          <span className="font-black text-gamdom-green text-sm">{score}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-gamdom-text">
+                          <span className="font-medium">Strikes (Missed)</span>
+                          <span className="font-black text-gamdom-red text-sm">{strikes} / 3</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Button full width */}
+                <div className="mt-4">
+                  {gameState !== 'playing' ? (
+                    <Button
+                      onClick={startGame}
+                      className="w-full h-12 lg:h-14 rounded-2xl font-black text-xs sm:text-sm tracking-wider uppercase bg-gamdom-green hover:bg-gamdom-greenHover text-gamdom-dark shadow-gamdom-green hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-center px-2"
+                    >
+                      <Play size={18} className="shrink-0" /> START GAME (${bet.toFixed(2)})
+                    </Button>
+                  ) : (
+                    <div className="text-center text-xs text-gamdom-green font-bold animate-pulse">
+                      🎮 Swipe mouse across canvas to slice fruits!
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gamdom-gold font-black text-sm">$</span>
-                <input
-                  type="number"
-                  step="1"
-                  min="1"
-                  disabled={gameState === 'playing'}
-                  value={bet}
-                  onChange={(e) => setBet(Math.max(1, Number(e.target.value)))}
-                  className="w-full bg-gamdom-input border border-gamdom-border rounded-xl py-2.5 pl-8 pr-3 text-white font-bold text-sm focus:outline-none focus:border-gamdom-green transition disabled:opacity-50 shadow-inner"
-                />
-              </div>
+              {/* Desktop: preserve original layout */}
+              <div className="sm:block">
+                <div className="space-y-5">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-[11px] font-black text-gamdom-text uppercase tracking-wider">
+                        Bet Amount
+                      </label>
+                      <span className="text-[11px] text-gamdom-text">Balance: <span className="text-white font-bold">${balance.toFixed(2)}</span></span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gamdom-gold font-black text-sm">$</span>
+                      <input
+                        type="number"
+                        step="1"
+                        min="1"
+                        disabled={gameState === 'playing'}
+                        value={bet}
+                        onChange={(e) => setBet(Math.max(1, Number(e.target.value)))}
+                        className="w-full bg-gamdom-input border border-gamdom-border rounded-xl py-2.5 pl-8 pr-3 text-white font-bold text-sm focus:outline-none focus:border-gamdom-green transition disabled:opacity-50 shadow-inner"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
+                      {[1, 5, 25, 50, 100].map((c) => (
+                        <button
+                          key={c}
+                          disabled={gameState === 'playing'}
+                          onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
+                          className="bg-gamdom-card hover:bg-gamdom-cardHover border border-gamdom-border text-xs font-black py-1.5 rounded-lg text-[#3bb8f2] hover:border-[#3bb8f2]/60 hover:bg-[#3bb8f2]/10 transition disabled:opacity-40"
+                        >
+                          +${c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
-                {[1, 5, 25, 50, 100].map((c) => (
-                  <button
-                    key={c}
-                    disabled={gameState === 'playing'}
-                    onClick={() => setBet((prev) => +(prev + c).toFixed(2))}
-                    className="bg-gamdom-card hover:bg-gamdom-cardHover border border-gamdom-border text-xs font-black py-1.5 rounded-lg text-[#3bb8f2] hover:border-[#3bb8f2]/60 hover:bg-[#3bb8f2]/10 transition disabled:opacity-40"
-                  >
-                    +${c}
-                  </button>
-                ))}
+                  {gameState === 'playing' && (
+                    <div className="bg-gamdom-input/80 border border-gamdom-border rounded-xl p-3.5 space-y-2 text-xs shadow-inner">
+                      <div className="flex justify-between items-center text-gamdom-text">
+                        <span className="font-medium">Fruits Sliced</span>
+                        <span className="font-black text-gamdom-green text-sm">{score}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-gamdom-text">
+                        <span className="font-medium">Strikes (Missed)</span>
+                        <span className="font-black text-gamdom-red text-sm">{strikes} / 3</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {errorMessage && (
+                    <div className="text-xs text-gamdom-red bg-gamdom-red/10 border border-gamdom-red/30 p-2.5 rounded-xl text-center font-bold">
+                      {errorMessage}
+                    </div>
+                  )}
+                </div>
+
+
               </div>
             </div>
-
-            {gameState === 'playing' && (
-              <div className="bg-gamdom-input/80 border border-gamdom-border rounded-xl p-3.5 space-y-2 text-xs shadow-inner">
-                <div className="flex justify-between items-center text-gamdom-text">
-                  <span className="font-medium">Fruits Sliced</span>
-                  <span className="font-black text-gamdom-green text-sm">{score}</span>
-                </div>
-                <div className="flex justify-between items-center text-gamdom-text">
-                  <span className="font-medium">Strikes (Missed)</span>
-                  <span className="font-black text-gamdom-red text-sm">{strikes} / 3</span>
-                </div>
-              </div>
-            )}
-
-            {errorMessage && (
-              <div className="text-xs text-gamdom-red bg-gamdom-red/10 border border-gamdom-red/30 p-2.5 rounded-xl text-center font-bold">
-                {errorMessage}
-              </div>
-            )}
-          </div>
 
           <div
             className={

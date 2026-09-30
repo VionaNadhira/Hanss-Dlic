@@ -178,131 +178,268 @@ export default function MinesPage() {
         {/* Theater Layout — controls left, grid right */}
         <div className="rounded-[20px_20px_0px_0px] overflow-hidden flex flex-col lg:flex-row" style={{ backgroundColor: '#080d13', border: '1px solid #19212a' }}>
           {/* Controls Panel — left */}
-          <div className="w-full lg:w-80 p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_132px] items-start gap-x-3 gap-y-4 lg:flex lg:flex-col lg:items-stretch lg:gap-0 justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
-            <div className="space-y-4">
-              {/* Bet Amount */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="font-bold uppercase" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9aa7b4', letterSpacing: '0px' }}>
-                    Bet Amount
-                  </label>
-                  <span className="text-sm" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', color: '#9aa7b4' }}>Balance: <span className="font-bold" style={{ color: '#fbb01b' }}>${balance.toFixed(2)}</span></span>
-                </div>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#fbb01b' }}>$</span>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0.1"
-                    disabled={gameState === 'playing'}
-                    value={bet}
-                    onChange={(e) => setBet(Math.max(0, Number(e.target.value)))}
-                    className="w-full py-2.5 pl-8 pr-3 font-semibold text-sm transition disabled:opacity-50"
-                    style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif", fontSize: '16px', fontWeight: 600 }}
-                  />
-                </div>
-                <div className="grid grid-cols-4 gap-1.5 mt-2">
-                  <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>½</button>
-                  <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
-                  <button disabled={gameState === 'playing'} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
-                  <button disabled={gameState === 'playing'} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
-                </div>
-              </div>
-
-              {/* Mines Count Selector */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="font-bold uppercase" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9aa7b4' }}>
-                    Mines Count
-                  </label>
-                  <span className="text-xs font-bold flex items-center gap-1" style={{ color: '#fbb01b' }}>
-                    <Bomb size={12} /> {minesCount} Bombs
-                  </span>
-                </div>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {[1, 3, 5, 10, 24].map((count) => (
-                    <button
-                      key={count}
-                      disabled={gameState === 'playing'}
-                      onClick={() => setMinesCount(count)}
-                      className="py-2 text-xs font-bold transition disabled:opacity-40"
-                      style={{
-                        borderRadius: '4px',
-                        border: minesCount === count ? '1px solid #3bb8f2' : '1px solid #19212a',
-                        backgroundColor: minesCount === count ? '#3bb8f2' : 'transparent',
-                        color: minesCount === count ? '#080d13' : '#9aa7b4',
-                        fontFamily: "'Gamdom', sans-serif",
-                      }}
-                    >
-                      {count}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stats Panel — inset surface */}
-              <div className="p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px' }}>
-                <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
-                  <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Current Multiplier</span>
-                  <span className="font-bold text-sm" style={{ color: '#3bb8f2' }}>
-                    {revealedCount > 0 ? `${currentMultiplier.toFixed(2)}x` : '1.00x'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
-                  <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Next Tile Multiplier</span>
-                  <span className="font-bold" style={{ color: '#fbb01b' }}>
-                    {nextMultiplier.toFixed(2)}x
-                  </span>
-                </div>
-                <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
-                  <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Safe Remaining</span>
-                  <span className="font-bold" style={{ color: '#ffffff' }}>
-                    {25 - minesCount - revealedCount} / {25 - minesCount}
-                  </span>
-                </div>
-              </div>
-
+          <div className="w-full lg:w-80 p-4 sm:p-6 flex flex-col justify-between shrink-0 order-2 lg:order-1" style={{ backgroundColor: '#10151c' }}>
+            <div className="flex flex-col gap-4 w-full">
+              {/* Error message - full width */}
               {errorMessage && (
                 <div className="text-xs font-bold p-2.5 rounded-[4px] text-center" style={{ color: '#ff4d4f', backgroundColor: 'rgba(255,77,79,0.12)', border: '1px solid #ff4d4f', fontFamily: "'Gamdom', sans-serif" }}>
                   {errorMessage}
                 </div>
               )}
-            </div>
+              {/* Mobile: 2-col grid for controls and info, then button */}
+              <div className="sm:hidden">
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Left column: controls */}
+                  <div className="flex flex-col gap-2">
+                    {/* Bet Amount */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="font-bold uppercase" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9aa7b4', letterSpacing: '0px' }}>
+                          Bet Amount
+                        </label>
+                        <span className="text-sm" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', color: '#9aa7b4' }}>Balance: <span className="font-bold" style={{ color: '#fbb01b' }}>${balance.toFixed(2)}</span></span>
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#fbb01b' }}>$</span>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0.1"
+                          disabled={gameState === 'playing'}
+                          value={bet}
+                          onChange={(e) => setBet(Math.max(0, Number(e.target.value)))}
+                          className="w-full py-2.5 pl-8 pr-3 font-semibold text-sm transition disabled:opacity-50"
+                          style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif", fontSize: '16px', fontWeight: 600 }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5 mt-2">
+                        <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>½</button>
+                        <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
+                        <button disabled={gameState === 'playing'} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
+                        <button disabled={gameState === 'playing'} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
+                      </div>
+                    </div>
 
-            {/* Action Button — token button: primary #3bb8f2 */}
-            <div className="w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
-              {gameState === 'playing' ? (
-                <button
-                  onClick={handleCashOut}
-                  disabled={revealedCount === 0}
-                  className={`w-full h-12 lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:brightness-110 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
-                  style={{
-                    borderRadius: '8px',
-                    borderWidth: '1px',
-                    backgroundColor: revealedCount > 0 ? '#3bb8f2' : 'transparent',
-                    color: revealedCount > 0 ? '#080d13' : '#3bb8f2',
-                    borderColor: '#3bb8f2',
-                    fontFamily: "'Gamdom', sans-serif",
-                    fontWeight: 700,
-                    boxShadow: revealedCount > 0 ? '0 0 20px -3px rgba(59, 184, 242, 0.45)' : 'none',
-                  }}
-                >
-                  <span>CASH OUT</span>
-                  {revealedCount > 0 && (
-                    <span className="text-[11px] font-bold" style={{ color: '#080d13', opacity: 0.85 }}>
-                      ${currentWinAmount.toFixed(2)} ({currentMultiplier.toFixed(2)}x)
-                    </span>
+                    {/* Mines Count Selector */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="font-bold uppercase" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9aa7b4' }}>
+                          Mines Count
+                        </label>
+                        <span className="text-xs font-bold flex items-center gap-1" style={{ color: '#fbb01b' }}>
+                          <Bomb size={12} /> {minesCount} Bombs
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {[1, 3, 5, 10, 24].map((count) => (
+                          <button
+                            key={count}
+                            disabled={gameState === 'playing'}
+                            onClick={() => setMinesCount(count)}
+                            className="py-2 text-xs font-bold transition disabled:opacity-40"
+                            style={{
+                              borderRadius: '4px',
+                              border: minesCount === count ? '1px solid #3bb8f2' : '1px solid #19212a',
+                              backgroundColor: minesCount === count ? '#3bb8f2' : 'transparent',
+                              color: minesCount === count ? '#080d13' : '#9aa7b4',
+                              fontFamily: "'Gamdom', sans-serif",
+                            }}
+                          >
+                            {count}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Right column: info */}
+                  <div className="flex flex-col gap-2">
+                    {/* Stats Panel — inset surface */}
+                    <div className="p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px' }}>
+                      <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
+                        <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Current Multiplier</span>
+                        <span className="font-bold text-sm" style={{ color: '#3bb8f2' }}>
+                          {revealedCount > 0 ? `${currentMultiplier.toFixed(2)}x` : '1.00x'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
+                        <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Next Tile Multiplier</span>
+                        <span className="font-bold" style={{ color: '#fbb01b' }}>
+                          {nextMultiplier.toFixed(2)}x
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
+                        <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Safe Remaining</span>
+                        <span className="font-bold" style={{ color: '#ffffff' }}>
+                          {25 - minesCount - revealedCount} / {25 - minesCount}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Button full width */}
+                <div className="mt-4">
+                  {gameState === 'playing' ? (
+                    <button
+                      onClick={handleCashOut}
+                      disabled={revealedCount === 0}
+                      className={`w-full h-12 lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:brightness-110 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
+                      style={{
+                        borderRadius: '8px',
+                        borderWidth: '1px',
+                        backgroundColor: revealedCount > 0 ? '#3bb8f2' : 'transparent',
+                        color: revealedCount > 0 ? '#080d13' : '#3bb8f2',
+                        borderColor: '#3bb8f2',
+                        fontFamily: "'Gamdom', sans-serif",
+                        fontWeight: 700,
+                        boxShadow: revealedCount > 0 ? '0 0 20px -3px rgba(59, 184, 242, 0.45)' : 'none',
+                      }}
+                    >
+                      <span>CASH OUT</span>
+                      {revealedCount > 0 && (
+                        <span className="text-[11px] font-bold" style={{ color: '#080d13', opacity: 0.85 }}>
+                          ${currentWinAmount.toFixed(2)} ({currentMultiplier.toFixed(2)}x)
+                        </span>
+                      )}
+                    </button>
+                  ) : (
+                    <Button
+                      onClick={handleStartGame}
+                      className="w-full h-12 lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
+                      style={{ borderRadius: '8px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
+                    >
+                      BET & START
+                    </Button>
                   )}
-                </button>
-              ) : (
-                <Button
-                  onClick={handleStartGame}
-                  className="w-full h-12 lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
-                  style={{ borderRadius: '8px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
-                >
-                  BET & START
-                </Button>
-              )}
+                </div>
+              </div>
+              {/* Desktop: preserve original layout */}
+              <div className="sm:block">
+                <div className="space-y-4">
+                  {/* Bet Amount */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="font-bold uppercase" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9aa7b4', letterSpacing: '0px' }}>
+                        Bet Amount
+                      </label>
+                      <span className="text-sm" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', color: '#9aa7b4' }}>Balance: <span className="font-bold" style={{ color: '#fbb01b' }}>${balance.toFixed(2)}</span></span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm" style={{ color: '#fbb01b' }}>$</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0.1"
+                        disabled={gameState === 'playing'}
+                        value={bet}
+                        onChange={(e) => setBet(Math.max(0, Number(e.target.value)))}
+                        className="w-full py-2.5 pl-8 pr-3 font-semibold text-sm transition disabled:opacity-50"
+                        style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px', color: '#ffffff', fontFamily: "'Gamdom', sans-serif", fontSize: '16px', fontWeight: 600 }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5 mt-2">
+                      <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(Math.max(1, prev / 2)).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>½</button>
+                      <button disabled={gameState === 'playing'} onClick={() => setBet((prev) => +(prev * 2).toFixed(2))} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>2×</button>
+                      <button disabled={gameState === 'playing'} onClick={() => setBet(1.00)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MIN</button>
+                      <button disabled={gameState === 'playing'} onClick={() => setBet(balance)} className="text-xs font-bold py-1.5 transition disabled:opacity-40 hover:bg-[#3bb8f2]/20" style={{ backgroundColor: 'rgba(59, 184, 242, 0.1)', border: '1px solid #3bb8f2', borderRadius: '4px', color: '#3bb8f2', fontFamily: "'Gamdom', sans-serif" }}>MAX</button>
+                    </div>
+                  </div>
+
+                  {/* Mines Count Selector */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="font-bold uppercase" style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '12px', fontWeight: 700, color: '#9aa7b4' }}>
+                        Mines Count
+                      </label>
+                      <span className="text-xs font-bold flex items-center gap-1" style={{ color: '#fbb01b' }}>
+                        <Bomb size={12} /> {minesCount} Bombs
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[1, 3, 5, 10, 24].map((count) => (
+                        <button
+                          key={count}
+                          disabled={gameState === 'playing'}
+                          onClick={() => setMinesCount(count)}
+                          className="py-2 text-xs font-bold transition disabled:opacity-40"
+                          style={{
+                            borderRadius: '4px',
+                            border: minesCount === count ? '1px solid #3bb8f2' : '1px solid #19212a',
+                            backgroundColor: minesCount === count ? '#3bb8f2' : 'transparent',
+                            color: minesCount === count ? '#080d13' : '#9aa7b4',
+                            fontFamily: "'Gamdom', sans-serif",
+                          }}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stats Panel — inset surface */}
+                  <div className="p-3.5 space-y-2 text-xs" style={{ backgroundColor: '#141a22', border: '1px solid #19212a', borderRadius: '4px' }}>
+                    <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
+                      <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Current Multiplier</span>
+                      <span className="font-bold text-sm" style={{ color: '#3bb8f2' }}>
+                        {revealedCount > 0 ? `${currentMultiplier.toFixed(2)}x` : '1.00x'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
+                      <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Next Tile Multiplier</span>
+                      <span className="font-bold" style={{ color: '#fbb01b' }}>
+                        {nextMultiplier.toFixed(2)}x
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center" style={{ color: '#9aa7b4' }}>
+                      <span style={{ fontFamily: "'Gamdom', sans-serif", fontSize: '14px', fontWeight: 400 }}>Safe Remaining</span>
+                      <span className="font-bold" style={{ color: '#ffffff' }}>
+                        {25 - minesCount - revealedCount} / {25 - minesCount}
+                      </span>
+                    </div>
+                  </div>
+
+                  {errorMessage && (
+                    <div className="text-xs font-bold p-2.5 rounded-[4px] text-center" style={{ color: '#ff4d4f', backgroundColor: 'rgba(255,77,79,0.12)', border: '1px solid #ff4d4f', fontFamily: "'Gamdom', sans-serif" }}>
+                      {errorMessage}
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Button — token button: primary #3bb8f2 */}
+                <div className="w-full col-start-2 row-start-1 self-end flex lg:col-start-auto lg:row-start-auto lg:self-auto lg:block">
+                  {gameState === 'playing' ? (
+                    <button
+                      onClick={handleCashOut}
+                      disabled={revealedCount === 0}
+                      className={`w-full h-12 lg:h-10 font-bold text-sm uppercase flex flex-col items-center justify-center transition-all ${revealedCount > 0 ? 'hover:brightness-110 active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}
+                      style={{
+                        borderRadius: '8px',
+                        borderWidth: '1px',
+                        backgroundColor: revealedCount > 0 ? '#3bb8f2' : 'transparent',
+                        color: revealedCount > 0 ? '#080d13' : '#3bb8f2',
+                        borderColor: '#3bb8f2',
+                        fontFamily: "'Gamdom', sans-serif",
+                        fontWeight: 700,
+                        boxShadow: revealedCount > 0 ? '0 0 20px -3px rgba(59, 184, 242, 0.45)' : 'none',
+                      }}
+                    >
+                      <span>CASH OUT</span>
+                      {revealedCount > 0 && (
+                        <span className="text-[11px] font-bold" style={{ color: '#080d13', opacity: 0.85 }}>
+                          ${currentWinAmount.toFixed(2)} ({currentMultiplier.toFixed(2)}x)
+                        </span>
+                      )}
+                    </button>
+                  ) : (
+                    <Button
+                      onClick={handleStartGame}
+                      className="w-full h-12 lg:h-10 font-bold text-sm uppercase border-0 transition-all hover:brightness-110 active:scale-[0.98]"
+                      style={{ borderRadius: '8px', backgroundColor: '#3bb8f2', color: '#080d13', fontFamily: "'Gamdom', sans-serif", fontWeight: 700, boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', border: '1px solid #3bb8f2' }}
+                    >
+                      BET & START
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
