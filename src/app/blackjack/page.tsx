@@ -383,7 +383,7 @@ export default function BlackjackPage() {
               </div>
 
               {/* Chip selectors */}
-              <div className="grid grid-cols-5 gap-1.5 mt-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
                 {chips.map((c) => (
                   <button
                     key={c}
@@ -504,7 +504,7 @@ export default function BlackjackPage() {
             {gameState === 'resolved' && (
               <Button
                 onClick={handleNewRound}
-                className="w-full h-full lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.96]"
+                className="w-full h-12 lg:h-11 rounded-[10px] font-bold text-sm uppercase flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.96]"
                 style={{ backgroundColor: '#3bb8f2', color: '#080d13', boxShadow: '0 0 20px -3px rgba(59, 184, 242, 0.45)', fontFamily: "'Luckiest Guy', serif" }}
               >
                 <RefreshCw size={17} /> PLAY AGAIN
@@ -532,7 +532,7 @@ export default function BlackjackPage() {
             className="absolute inset-x-0 flex flex-col items-center justify-between"
             style={{
               top: '5%',
-              bottom: '38%',
+              bottom: '28%',
               paddingLeft: '8%',
               paddingRight: '8%',
             }}

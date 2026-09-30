@@ -398,7 +398,7 @@ export default function CrashPage() {
           </div>
 
           {/* Canvas Display — right stage */}
-          <div ref={stageRef} className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center relative min-h-[300px] sm:min-h-[520px] bg-cover bg-center bg-no-repeat order-1 lg:order-2" style={{ backgroundImage: "url('/crash/bg.png')", backgroundColor: '#080d13' }}>
+          <div ref={stageRef} className="flex-1 p-4 sm:p-6 flex flex-col items-center justify-center relative min-h-[340px] sm:min-h-[520px] bg-cover bg-center bg-no-repeat order-1 lg:order-2" style={{ backgroundImage: "url('/crash/bg.png')", backgroundColor: '#080d13' }}>
             <div className="absolute z-10 flex flex-col items-center pointer-events-none select-none">
               {status === 'COUNTDOWN' ? (
                 <div className="flex flex-col items-center">

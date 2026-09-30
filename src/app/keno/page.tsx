@@ -587,7 +587,7 @@ export default function KenoPage() {
                     style={inputStyle}
                   />
                 </div>
-                <div className="grid grid-cols-4 gap-2 mt-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mt-2">
                   {[
                     { label: 'MIN', apply: () => setBetValue(1) },
                     { label: '½', apply: () => setBetValue(+(bet / 2).toFixed(2)) },
@@ -623,7 +623,7 @@ export default function KenoPage() {
                     <Grid3x3 size={12} /> {spots} / {MAX_SPOTS}
                   </span>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                   {[
                     { label: '4', apply: () => quickPick(4) },
                     { label: '5', apply: () => quickPick(5) },
@@ -695,8 +695,8 @@ export default function KenoPage() {
                 disabled={isDrawing}
                 className="w-full flex items-center justify-center transition active:scale-[0.99] disabled:opacity-60 hover:brightness-110"
                 style={{
-                  minHeight: '56px',
-                  height: '56px',
+                  minHeight: '48px',
+                  height: '48px',
                   width: '100%',
                   borderRadius: '8px',
                   border: '1px solid #3bb8f2',

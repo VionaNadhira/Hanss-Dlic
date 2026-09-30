@@ -319,7 +319,7 @@ export default function FruitNinjaRealPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-5 gap-1.5 mt-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-1.5 mt-2">
                 {[1, 5, 25, 50, 100].map((c) => (
                   <button
                     key={c}

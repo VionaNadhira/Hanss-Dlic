@@ -211,7 +211,7 @@ export default function DicePage() {
           </div>
 
           {/* Game Stage Area — base surface compact */}
-          <div className="flex-1 p-4 sm:p-8 flex flex-col items-center justify-center min-h-[320px] sm:min-h-[520px] order-1 lg:order-2" style={{ backgroundColor: '#080d13' }}>
+          <div className="flex-1 p-4 sm:p-8 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[520px] order-1 lg:order-2" style={{ backgroundColor: '#080d13' }}>
             {/* Slider visualization — Dlicom art with probability overlay */}
             <div className="w-full max-w-lg mb-10">
               <div className="relative w-full">
