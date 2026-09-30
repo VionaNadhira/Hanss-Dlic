@@ -35,3 +35,25 @@ if (process.env.NODE_ENV !== 'production') {
 
 export const db = drizzle(pool, { schema })
 export { pool }
+
+let ensurePromise: Promise<void> | null = null
+
+/**
+ * Adds columns that may be missing on an existing production database.
+ * Runs once per server instance, lazily, and never throws.
+ */
+export function ensureSchema(): Promise<void> {
+  if (!ensurePromise) {
+    ensurePromise = pool
+      .query(
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(512);
+         UPDATE users SET avatar_url = 'https://xsgames.co/randomusers/avatar.php?g=pixel' WHERE avatar_url IS NULL;`
+      )
+      .then(() => undefined)
+      .catch((err) => {
+        console.error('[ensureSchema] failed:', err)
+        ensurePromise = null
+      })
+  }
+  return ensurePromise
+}

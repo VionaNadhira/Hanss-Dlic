@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { eq, sql } from 'drizzle-orm'
-import { db, pool } from './client'
+import { db, pool, ensureSchema } from './client'
 import * as schema from './schema'
 
 export interface DbUser {
@@ -41,6 +41,7 @@ export function generateSalt(): string {
 }
 
 export async function getUserByUsername(username: string): Promise<DbUser | null> {
+  await ensureSchema()
   const clean = username.trim().toLowerCase()
   const rows = await db
     .select()
@@ -219,6 +220,7 @@ export async function claimFaucetAtomic(
 }
 
 export async function getLeaderboardUsers(limit = 50) {
+  await ensureSchema()
   const res = await pool.query(
      `SELECT username, balance, score, streak_days as "streakDays", COALESCE(avatar_url, 'https://xsgames.co/randomusers/avatar.php?g=pixel') as "avatarUrl"
      FROM users
