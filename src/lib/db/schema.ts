@@ -24,6 +24,7 @@ export const users = pgTable('users', {
   lastFaucetAt: timestamp('last_faucet_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
+  avatarUrl: varchar('avatar_url', { length: 512 }),
 })
 
 export const chatMessages = pgTable(

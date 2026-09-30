@@ -18,6 +18,7 @@ interface ChatMessage {
   time: string
   timestamp?: number
   replyTo?: ChatReplyTo
+  avatarUrl?: string
 }
 
 const MENTION_RE = /@([A-Za-z0-9_.-]{1,30})/g

@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
       user: {
         id: user.username,
         username: user.username,
+        avatarUrl: user.avatarUrl || 'https://xsgames.co/randomusers/avatar.php?g=pixel',
         balance: user.balance.toString(),
         score,
         rank: rank > 0 ? rank : 1,

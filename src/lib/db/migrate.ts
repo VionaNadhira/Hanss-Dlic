@@ -18,7 +18,8 @@ export async function initDb(): Promise<void> {
         last_bet_day VARCHAR(10),
         last_faucet_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-        last_login_at TIMESTAMP WITH TIME ZONE
+        last_login_at TIMESTAMP WITH TIME ZONE,
+        avatar_url VARCHAR(512)
       );
 
       CREATE TABLE IF NOT EXISTS rounds (
@@ -94,6 +95,14 @@ export async function initDb(): Promise<void> {
       await client.query(`
         ALTER TABLE users ALTER COLUMN balance TYPE NUMERIC(18, 2) USING balance::NUMERIC(18, 2);
       `)
+    } catch {}
+
+    try {
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(512);`)
+    } catch {}
+
+    try {
+      await client.query(`UPDATE users SET avatar_url = 'https://xsgames.co/randomusers/avatar.php?g=pixel' WHERE avatar_url IS NULL;`)
     } catch {}
 
     // 2. Migrate existing users from .users-db.json if available

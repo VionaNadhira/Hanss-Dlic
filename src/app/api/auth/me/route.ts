@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
       user: {
         username: user.username,
         balance: user.balance,
+        avatarUrl: user.avatarUrl || 'https://xsgames.co/randomusers/avatar.php?g=pixel',
         history: [],
       },
     })

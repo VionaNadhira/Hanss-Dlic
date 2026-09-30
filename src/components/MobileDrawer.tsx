@@ -84,9 +84,16 @@ export default function MobileDrawer({
           {user ? (
             <div className="bg-gamdom-card border border-gamdom-border rounded-xl p-3 space-y-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-gamdom-green flex items-center justify-center font-black text-sm text-gamdom-dark shrink-0">
-                  {user.username[0].toUpperCase()}
-                </div>
+                <img
+                  src={user.avatarUrl || `https://xsgames.co/randomusers/avatar.php?g=pixel&seed=${encodeURIComponent(user.username)}`}
+                  alt={user.username}
+                  className="w-8 h-8 rounded-lg object-cover shrink-0"
+                  onError={(e) => {
+                    const t = e.currentTarget as HTMLImageElement
+                    t.onerror = null
+                    t.src = `https://xsgames.co/randomusers/avatar.php?g=pixel&seed=${encodeURIComponent(user.username)}`
+                  }}
+                />
                 <div className="min-w-0">
                   <div className="text-sm font-bold text-white truncate">{user.username}</div>
                   <div className="text-xs text-gamdom-gold font-bold">${balance.toFixed(2)}</div>

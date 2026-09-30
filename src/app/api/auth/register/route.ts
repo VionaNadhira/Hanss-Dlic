@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       success: true,
       username: user.username,
       balance: user.balance,
+      avatarUrl: user.avatarUrl || 'https://xsgames.co/randomusers/avatar.php?g=pixel',
     })
     response.cookies.set('dlicom_user', cleanUsername, {
       httpOnly: true,
