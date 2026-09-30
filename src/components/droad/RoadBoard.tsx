@@ -35,8 +35,8 @@ const NEAR_PCT = 20
 
 /** Highest mascot pixel above the foot anchor, as a fraction of the cell. */
 const MASCOT_BODY = MASCOT_ANCHOR.y - 31 / MASCOT_CELL
-/** Cell scale that makes the mascot's body about 70% of a lane. */
-const MASCOT_LANE_SCALE = 0.7 / MASCOT_BODY
+/** Cell scale that makes the mascot's body about 2.0 lanes tall. */
+const MASCOT_LANE_SCALE = 2.0 / MASCOT_BODY
 /**
  * Vehicle files are square with the car painted in roughly the middle half.
  * 1.25 × the lane paints that car at about 65% of the lane without stretching.
@@ -61,7 +61,9 @@ interface Lane {
   speed: number
 }
 
-/** Deterministic layout, so a replayed round looks the same every time. */
+/** Deterministic layout, so a replayed round looks the same every time.
+ *  Traffic flows one way only (left to right); no lane ever reverses, so cars
+ *  read as a steady stream instead of bouncing back across the road. */
 function buildLanes(): Lane[] {
   return Array.from({ length: ROAD_LANES }, (_, i) => {
     const r = ((i * 2654435761) % 997) / 997
@@ -69,7 +71,7 @@ function buildLanes(): Lane[] {
       index: i,
       vehicle: VEHICLE_SOURCES[i % VEHICLE_SOURCES.length],
       offset: r,
-      speed: (0.5 + ((i * 37) % 5) * 0.14) * (i % 2 === 0 ? -1 : 1),
+      speed: 0.5 + ((i * 37) % 5) * 0.14,
     }
   })
 }
@@ -187,7 +189,6 @@ export default function RoadBoard({
           }
         }
         const struck = down && isHitLane
-        const facing = lane.speed < 0 ? -1 : 1
         return (
           <div
             key={lane.index}
@@ -214,7 +215,7 @@ export default function RoadBoard({
                   maxWidth: 'none',
                   top: '50%',
                   left: `${x}%`,
-                  transform: `translate(-50%, -50%) scaleX(${facing})`,
+                  transform: `translate(-50%, -50%)`,
                   opacity: down && !struck ? 0.7 : 1,
                   filter: struck
                     ? 'drop-shadow(0 0 12px rgba(255,77,79,0.85))'
