@@ -16,7 +16,8 @@ import {
   Flame,
   HelpCircle,
   TrendingUp,
-  Trophy
+  Trophy,
+  TrafficCone
 } from 'lucide-react'
 
 export default function Sidebar() {
@@ -26,6 +27,7 @@ export default function Sidebar() {
     { href: '/btcupdown', label: 'BTC Up or Down', icon: TrendingUp, hot: true },
     { href: '/dice', label: 'Dice', icon: LucideDices, hot: false },
     { href: '/mines', label: 'Mines', icon: Bomb, hot: true },
+    { href: '/droad', label: 'Dlicom Road', icon: TrafficCone, hot: true },
     { href: '/crash', label: 'Crash', icon: Rocket, hot: true },
     { href: '/blackjack', label: 'Blackjack', icon: Spade, hot: false },
   ]

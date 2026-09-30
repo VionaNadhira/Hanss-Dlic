@@ -14,6 +14,7 @@ import {
   Gem,
   Coins,
   Grid3x3,
+  TrafficCone,
   LogOut,
   LogIn,
 } from 'lucide-react'
@@ -44,6 +45,7 @@ export default function MobileDrawer({
   const games = [
     { href: '/dice', label: 'Dice', icon: LucideDices, color: 'text-gamdom-blue' },
     { href: '/mines', label: 'Mines', icon: Bomb, color: 'text-gamdom-gold' },
+    { href: '/droad', label: 'Dlicom Road', icon: TrafficCone, color: 'text-gamdom-blue' },
     { href: '/crash', label: 'Crash', icon: Rocket, color: 'text-gamdom-red' },
     { href: '/limbo', label: 'Limbo', icon: Gem, color: 'text-gamdom-green' },
     { href: '/blackjack', label: 'Blackjack', icon: Spade, color: 'text-purple-400' },

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from './AuthContext'
 
 interface BalanceContextType {
@@ -16,6 +16,10 @@ const BalanceContext = createContext<BalanceContextType | undefined>(undefined)
 export function BalanceProvider({ children }: { children: React.ReactNode }) {
   const { user, loading, updateUserBalance } = useAuth()
   const [balance, setBalance] = useState<number>(0)
+
+  // Keep a ref so deductBalance always reads the latest balance
+  const balanceRef = useRef(balance)
+  useEffect(() => { balanceRef.current = balance }, [balance])
 
   // Sync balance from auth user whenever it changes
   useEffect(() => {
@@ -50,25 +54,28 @@ export function BalanceProvider({ children }: { children: React.ReactNode }) {
    * Optimistic local deduction (for immediate UI feedback after bet).
    * The real deduction happens server-side in /api/bets.
    */
-  const addBalance = (amount: number) => {
+  const addBalance = useCallback((amount: number) => {
     if (amount <= 0) return
     setBalance((prev) => {
       const next = +(prev + amount).toFixed(2)
       updateUserBalance(next)
       return next
     })
-  }
+  }, [updateUserBalance])
 
-  const deductBalance = (amount: number): boolean => {
+  const deductBalance = useCallback((amount: number): boolean => {
     if (amount <= 0) return true
-    if (balance < amount) return false
+    // Read the latest balance from ref, not stale closure
+    if (balanceRef.current < amount) return false
     setBalance((prev) => {
+      // Double-check inside the updater to be safe against concurrent calls
+      if (prev < amount) return prev
       const next = +(prev - amount).toFixed(2)
       updateUserBalance(next)
       return next
     })
     return true
-  }
+  }, [updateUserBalance])
 
   const resetBalance = () => {
     setBalance(0)

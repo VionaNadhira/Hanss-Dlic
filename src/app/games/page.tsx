@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
-import { LucideDices, Bomb, Rocket, Spade, Gem, Grid3x3, Flame } from 'lucide-react'
+import { LucideDices, Bomb, Rocket, Spade, Gem, Grid3x3, Flame, TrafficCone } from 'lucide-react'
 
 export default function GamesPage() {
   const games = [
@@ -26,6 +26,16 @@ export default function GamesPage() {
       badgeColor: 'bg-gamdom-gold/20 text-gamdom-gold border-gamdom-gold/40',
       image: '/games/mines.webp',
       borderColor: 'group-hover:border-gamdom-gold/50',
+    },
+    {
+      title: 'Dlicom Road',
+      description: 'Send the mascot across the lanes and hope you clear every car',
+      href: '/droad',
+      icon: TrafficCone,
+      badge: 'New',
+      badgeColor: 'bg-gamdom-blue/20 text-gamdom-blue border-gamdom-blue/40',
+      image: '/games/dlicomroad.png',
+      borderColor: 'group-hover:border-gamdom-blue/50',
     },
     {
       title: 'Crash',

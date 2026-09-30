@@ -3,19 +3,19 @@
 import React from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
-import { LucideDices, Bomb, Rocket, Spade, Gem, Flame, Sparkles, Grid3x3 } from 'lucide-react'
+import { LucideDices, Bomb, Rocket, Spade, Gem, Flame, Sparkles, Grid3x3, TrafficCone } from 'lucide-react'
 
 export default function Home() {
   const games = [
     {
-      title: 'Dice',
-      description: 'Classic roll over / roll under with customizable win chance',
-      href: '/dice',
-      icon: LucideDices,
-      badge: 'Popular',
-      badgeColor: 'bg-gamdom-green/20 text-gamdom-green border-gamdom-green/40',
-      image: '/games/dice.webp',
-      borderColor: 'group-hover:border-gamdom-green/50',
+      title: 'Dlicom Road',
+      description: 'Send the mascot across the lanes and hope you clear every car',
+      href: '/droad',
+      icon: TrafficCone,
+      badge: 'New',
+      badgeColor: 'bg-gamdom-blue/20 text-gamdom-blue border-gamdom-blue/40',
+      image: '/games/dlicomroad.png',
+      borderColor: 'group-hover:border-gamdom-blue/50',
     },
     {
       title: 'Mines',
