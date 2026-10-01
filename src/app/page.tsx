@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
 import { LucideDices, Bomb, Rocket, Spade, Gem, Flame, Sparkles, Grid3x3, TrafficCone } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 
 export default function Home() {
   const games = [
@@ -76,6 +77,16 @@ export default function Home() {
       badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
       image: '/games/btcupdown.jpeg',
       borderColor: 'group-hover:border-purple-500/50',
+    },
+    {
+      title: 'Dlicom Flip',
+      description: 'Choose Pink or Yellow, flip the coin, and win 1.96x!',
+      href: '/dlicomflip',
+      icon: MessageSquare,
+      badge: 'New',
+      badgeColor: 'bg-gamdom-red/20 text-gamdom-red border-gamdom-red/40',
+      image: '/games/dlicomflip.png',
+      borderColor: 'group-hover:border-gamdom-red/50',
     },
   ].sort((a, b) => a.title.localeCompare(b.title))
 
