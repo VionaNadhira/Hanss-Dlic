@@ -92,6 +92,7 @@ export default function Home() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full" style={{ backgroundColor: '#080d13' }}>
+      <style>{`@import url(\'https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500&display=swap\');`}</style>
       {/* Gamdom Hero Banner */}
       <div
         className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-gamdom-border p-5 sm:p-8 lg:p-10 shadow-gamdom-card"
@@ -103,10 +104,10 @@ export default function Home() {
         }}
       >
         <div className="relative z-10 max-w-2xl">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white mb-2 sm:mb-3 tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl text-white mb-2 sm:mb-3 leading-tight" style={{ fontFamily: "'Anton', sans-serif", fontWeight: 400, letterSpacing: "0.01em", textTransform: "uppercase" }}>
             HanssDlic, a #1 casino platform
           </h1>
-          <p className="text-gamdom-text text-xs sm:text-base leading-relaxed mb-4 sm:mb-6 font-medium">
+          <p className="text-gamdom-text text-xs sm:text-base leading-relaxed mb-4 sm:mb-6" style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500 }}>
             Built from community to community, try casinos games without real deposit, real money, just free play. more games coming soon
           </p>
           <div className="flex flex-wrap items-center gap-3">
