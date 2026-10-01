@@ -93,8 +93,16 @@ export default function Home() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full" style={{ backgroundColor: '#080d13' }}>
       {/* Gamdom Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-gamdom-card via-gamdom-cardHover to-gamdom-dark border border-gamdom-border p-5 sm:p-8 lg:p-10 shadow-gamdom-card">
-        <div className="relative z-10 max-w-2xl lg:ml-64 xl:ml-72">
+      <div
+        className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-gamdom-border p-5 sm:p-8 lg:p-10 shadow-gamdom-card"
+        style={{
+          backgroundImage: 'url("/assets/Glossy Neon Casino Mascot in Motion.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="relative z-10 max-w-2xl">
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white mb-2 sm:mb-3 tracking-tight leading-tight">
             HanssDlic, a #1 casino platform
           </h1>
@@ -105,11 +113,6 @@ export default function Home() {
 
           </div>
         </div>
-
-        <div className="hidden lg:block absolute left-0 bottom-0 top-0 w-64 xl:w-72 select-none pointer-events-none">
-          <img src="/mascot.webp" alt="Mascot" className="w-full h-full object-contain object-bottom" />
-        </div>
-        <div className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-gamdom-green/10 filter blur-3xl pointer-events-none" />
       </div>
 
       {/* Game Cards Grid */}
