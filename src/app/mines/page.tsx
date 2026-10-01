@@ -227,7 +227,7 @@ export default function MinesPage() {
                           Mines Count
                         </label>
                         <span className="text-xs font-bold flex items-center gap-1" style={{ color: '#fbb01b' }}>
-                          <Bomb size={12} /> {minesCount} Bombs
+<img src="/mines/bomb.png" alt="Bomb" className="w-3 h-3" /> {minesCount} Bombs
                         </span>
                       </div>
                       <div className="grid grid-cols-5 gap-1.5">
@@ -351,7 +351,7 @@ export default function MinesPage() {
                         Mines Count
                       </label>
                       <span className="text-xs font-bold flex items-center gap-1" style={{ color: '#fbb01b' }}>
-                        <Bomb size={12} /> {minesCount} Bombs
+                        <img src="/mines/bomb.png" alt="Bomb" className="w-3 h-3" /> {minesCount} Bombs
                       </span>
                     </div>
                     <div className="grid grid-cols-5 gap-1.5">
@@ -448,7 +448,7 @@ export default function MinesPage() {
             <div className="h-10 mb-4 flex items-center justify-center">
               {gameState === 'busted' && (
                 <div className="px-5 py-2 font-bold text-xs uppercase flex items-center gap-1.5" style={{ backgroundColor: 'rgba(255,77,79,0.15)', border: '1px solid #ff4d4f', borderRadius: '4px', color: '#ff4d4f', fontFamily: "'Gamdom', sans-serif" }}>
-                  <Bomb size={16} /> BUSTED! You hit a mine.
+                  <img src="/mines/bomb.png" alt="Bomb" className="w-4 h-4" /> BUSTED! You hit a mine.
                 </div>
               )}
               {gameState === 'cashed_out' && (
