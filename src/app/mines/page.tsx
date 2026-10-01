@@ -448,7 +448,7 @@ export default function MinesPage() {
             <div className="h-10 mb-4 flex items-center justify-center">
               {gameState === 'busted' && (
                 <div className="px-5 py-2 font-bold text-xs uppercase flex items-center gap-1.5" style={{ backgroundColor: 'rgba(255,77,79,0.15)', border: '1px solid #ff4d4f', borderRadius: '4px', color: '#ff4d4f', fontFamily: "'Gamdom', sans-serif" }}>
-                  <img src="/mines/bomb.png" alt="Bomb" className="w-4 h-4" /> BUSTED! You hit a mine.
+                  <img src="/mines/bomb.png" alt="Bomb" className="w-4 h-4" /> BUSTED! You hit a boomb.
                 </div>
               )}
               {gameState === 'cashed_out' && (
