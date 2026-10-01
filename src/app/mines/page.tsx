@@ -6,7 +6,7 @@ import Button from '@/components/ui/button'
 import AuthGuardModal from '@/components/AuthGuardModal'
 import { useBalance } from '@/context/BalanceContext'
 import { useAuth } from '@/context/AuthContext'
-import { Bomb, Gem, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 
 function playSound(type: 'click' | 'gem' | 'boom' | 'win') {
   if (typeof window === 'undefined') return
@@ -458,7 +458,7 @@ export default function MinesPage() {
               )}
               {gameState === 'playing' && revealedCount > 0 && (
                 <div className="text-xs font-bold flex items-center gap-1.5" style={{ color: '#fbb01b', fontFamily: "'Gamdom', sans-serif" }}>
-                  <Gem size={14} style={{ color: '#38B9F2' }} />
+                  <img src="/mines/diamond.png" alt="Diamond" className="w-4 h-4" />
                   {revealedCount} Gems Uncovered • Current Profit: +${(currentWinAmount - bet).toFixed(2)}
                 </div>
               )}
@@ -487,25 +487,13 @@ export default function MinesPage() {
                     }}
                   >
                     {isRevealed && isMine && (
-                      // @ts-expect-error model-viewer is a custom element
-                      <model-viewer
-                        src="/bomb.glb"
-                        auto-rotate
-                        camera-controls={false}
-                        disable-zoom
-                        style={{ width: '42px', height: '42px' }}
-                      />
-                    )}
-                    {isRevealed && !isMine && <img src="/diamond.png" alt="Diamond" className="w-10 h-10 object-contain" />}
+                       <img src="/mines/bomb.png" alt="Bomb" style={{ width: '42px', height: '42px' }} />
+                     )}
+                    {isRevealed && !isMine && <img src="/mines/diamond.png" alt="Diamond" className="w-10 h-10 object-contain" />}
                     {showDimmedMine && (
-                      // @ts-expect-error model-viewer is a custom element
-                      <model-viewer
-                        src="/bomb.glb"
-                        auto-rotate
-                        style={{ width: '36px', height: '36px', opacity: 0.6 }}
-                      />
-                    )}
-                    {showDimmedGem && <img src="/diamond.png" alt="Diamond" className="w-9 h-9 object-contain opacity-40" />}
+                       <img src="/mines/bomb.png" alt="Bomb" style={{ width: '36px', height: '36px', opacity: 0.6 }} />
+                     )}
+                    {showDimmedGem && <img src="/mines/diamond.png" alt="Diamond" className="w-9 h-9 object-contain opacity-40" />}
                     {!isRevealed && !isGameOver && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#2b3440' }} />}
                   </button>
                 )
